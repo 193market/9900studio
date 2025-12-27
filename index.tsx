@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { PortfolioProvider } from './contexts/PortfolioContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -11,8 +12,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <PortfolioProvider>
-      <App />
-    </PortfolioProvider>
+    <LanguageProvider>
+      <PortfolioProvider>
+        <App />
+      </PortfolioProvider>
+    </LanguageProvider>
   </React.StrictMode>
 );
