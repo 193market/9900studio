@@ -4,7 +4,7 @@ export const translations = {
       portfolio: '제작사례',
       services: '서비스',
       pricing: '가격',
-      cta: '영상 제작하기',
+      cta: '스튜디오 시작하기',
     },
     hero: {
       badge: '당일 제작 완료 보장',
@@ -14,7 +14,7 @@ export const translations = {
       desc: '복잡한 편집, 비싼 외주 비용은 잊으세요.\n단 ',
       desc_price: '₩9,900',
       desc_suffix: '에 기획부터 영상 제작까지 AI가 다 해드립니다.',
-      cta: '👉 ₩9,900 영상 바로 만들기',
+      cta: '👉 ₩9,900 스튜디오 시작하기',
       disclaimer: '* 결과물 불만족 시 100% 환불 보장',
     },
     portfolio: {
@@ -28,20 +28,54 @@ export const translations = {
       result_label: 'AI 제작 완료',
       admin_notice: '* 위 사례들은 관리자 페이지에서 실시간으로 업데이트됩니다.',
     },
-    services: {
-      target_01_title: '쇼핑몰 셀러',
-      target_01_desc: '상세페이지에 영상 하나 넣었을 뿐인데, 구매 전환율이 달라집니다.',
-      target_01_action: '제품 영상 만들기',
-      target_02_title: '부동산 공인중개사',
-      target_02_desc: '매번 현장 촬영 힘드셨죠? 사진만 보내주시면 브리핑 영상이 나옵니다.',
-      target_02_action: '매물 영상 만들기',
-      target_03_title: '자영업/브랜드',
-      target_03_desc: '전단지보다 강력한 우리 매장 홍보 영상, 인스타/틱톡에 바로 올리세요.',
-      target_03_action: '홍보 영상 만들기',
+    services_menu: {
+      title: '우리가 할 수 있는 것들',
+      subtitle: '업종별 최적화된 AI 디자인 솔루션을 선택하세요.',
+      categories: {
+        fashion: '패션 / 의류 / 잡화',
+        food: 'F&B / 요식업',
+        ecommerce: '이커머스 / 온라인 셀러',
+        interior: '인테리어 / 부동산 중개인',
+        creator: '콘텐츠 크리에이터',
+        media: '사진 / 영상 / 음향'
+      }
+    },
+    studio: {
+      sidebar: {
+        group_space: '공간 및 건축',
+        group_commerce: '커머스 및 자영업',
+        group_life: '전문 서비스 및 라이프',
+      },
+      preview: {
+        title: '결과 미리보기',
+        placeholder: '선택한 서비스의 예시 이미지가\n여기에 표시됩니다.',
+        config_title: '설정',
+        mode_create: '생성 모드',
+        mode_edit: '편집 모드',
+        model_label: 'AI 모델 선택',
+        model_std: 'Standard',
+        model_pro: 'Pro (High Quality)',
+        ratio: '비율',
+        resolution: '해상도',
+        style: '화풍 (Style)',
+        lang_input: '이미지 내 텍스트 언어 (자동 감지)',
+        btn_generate: '이 설정으로 제작 신청하기',
+        tip_title: '활용 팁 & 레퍼런스 가이드',
+      },
+      options: {
+        ratio_1_1: '1:1 (정방형)',
+        ratio_9_16: '9:16 (세로형)',
+        ratio_16_9: '16:9 (유튜브)',
+        res_1k: '1K (Standard)',
+        res_4k: '4K (Ultra HD)',
+        style_photo: '실사 (Photorealistic)',
+        style_art: '수채화 (Watercolor)',
+        style_3d: '3D 렌더링',
+      }
     },
     pricing: {
       title_prefix: '이 모든 구성이,',
-      title_highlight: '커피 두 잔 값인 ₩9,900',
+      title_highlight: '점심 값도 안되는 ₩9,900',
       features: [
         "전문 AI 영상 기획 & 대본 생성",
         "리얼한 AI 성우 내레이션",
@@ -66,8 +100,8 @@ export const translations = {
       submit: '주문 접수하기',
     },
     footer: {
-      address: '주소: 서울특별시 강남구 테헤란로 000',
-      copyright: '본 서비스는 AI 기술을 활용하여 제작되며, 결과물의 저작권은 구매자에게 귀속됩니다.',
+      address: '주소: 서울 강서구 화곡로 129 305호',
+      copyright: '© 2025 9900Studio All rights reserved.',
       terms: '이용약관',
       privacy: '개인정보처리방침',
       admin: '관리자 로그인',
@@ -82,7 +116,7 @@ export const translations = {
       portfolio: 'Portfolio',
       services: 'Services',
       pricing: 'Pricing',
-      cta: 'Create Video',
+      cta: 'Start Studio',
     },
     hero: {
       badge: 'Same-Day Delivery Guaranteed',
@@ -92,7 +126,7 @@ export const translations = {
       desc: 'Forget complex editing and expensive outsourcing.\nFully produced AI videos for just ',
       desc_price: '$9',
       desc_suffix: '.',
-      cta: '👉 Create Video for $9',
+      cta: '👉 Start Studio for $9',
       disclaimer: '* 100% Refund if not satisfied',
     },
     portfolio: {
@@ -106,16 +140,50 @@ export const translations = {
       result_label: 'AI Created',
       admin_notice: '* Use cases above are updated in real-time.',
     },
-    services: {
-      target_01_title: 'E-commerce Sellers',
-      target_01_desc: 'Just adding one video to your detail page changes your conversion rate.',
-      target_01_action: 'Product Video',
-      target_02_title: 'Real Estate Agents',
-      target_02_desc: 'Tired of filming on-site? Just send photos for a full briefing video.',
-      target_02_action: 'Property Video',
-      target_03_title: 'Local Business',
-      target_03_desc: 'More powerful than flyers. Post promotional videos to TikTok/Reels instantly.',
-      target_03_action: 'Promo Video',
+    services_menu: {
+      title: 'Things we can do',
+      subtitle: 'Check out our AI design solutions by industry.',
+      categories: {
+        fashion: 'Fashion / Apparel',
+        food: 'F&B / Restaurant',
+        ecommerce: 'E-commerce / Sellers',
+        interior: 'Interior / Real Estate',
+        creator: 'Content Creator',
+        media: 'Photo / Video / Audio'
+      }
+    },
+    studio: {
+      sidebar: {
+        group_space: 'Space & Architecture',
+        group_commerce: 'Commerce & Business',
+        group_life: 'Professional & Life',
+      },
+      preview: {
+        title: 'Result Preview',
+        placeholder: 'Sample image of the selected service\nwill be displayed here.',
+        config_title: 'Settings',
+        mode_create: 'Create Mode',
+        mode_edit: 'Edit Mode',
+        model_label: 'Select AI Model',
+        model_std: 'Standard',
+        model_pro: 'Pro (High Quality)',
+        ratio: 'Ratio',
+        resolution: 'Resolution',
+        style: 'Style',
+        lang_input: 'Text Language (Auto)',
+        btn_generate: 'Order with this config',
+        tip_title: 'Usage Tips & Reference Guide',
+      },
+      options: {
+        ratio_1_1: '1:1 (Square)',
+        ratio_9_16: '9:16 (Vertical)',
+        ratio_16_9: '16:9 (Landscape)',
+        res_1k: '1K (Standard)',
+        res_4k: '4K (Ultra HD)',
+        style_photo: 'Photorealistic',
+        style_art: 'Watercolor',
+        style_3d: '3D Render',
+      }
     },
     pricing: {
       title_prefix: 'All included for',
@@ -144,8 +212,8 @@ export const translations = {
       submit: 'Submit Inquiry',
     },
     footer: {
-      address: 'Address: Teheran-ro, Gangnam-gu, Seoul',
-      copyright: 'Created with AI technology. Copyright belongs to the purchaser.',
+      address: 'Address: 129 Hwagok-ro, Gangseo-gu, Seoul',
+      copyright: '© 2025 9900Studio All rights reserved.',
       terms: 'Terms',
       privacy: 'Privacy',
       admin: 'Admin Login',
@@ -160,7 +228,7 @@ export const translations = {
       portfolio: '制作事例',
       services: 'サービス',
       pricing: '料金',
-      cta: '動画を作成する',
+      cta: 'スタジオを始める',
     },
     hero: {
       badge: '即日納品保証',
@@ -170,7 +238,7 @@ export const translations = {
       desc: '複雑な編集や高額な外注費は忘れてください。\nたった ',
       desc_price: '₩9,900',
       desc_suffix: ' で企画から動画制作までAIが全て行います。',
-      cta: '👉 ₩9,900で動画を作る',
+      cta: '👉 ₩9,900でスタジオを始める',
       disclaimer: '* 結果に満足できない場合は100%返金保証',
     },
     portfolio: {
@@ -184,16 +252,50 @@ export const translations = {
       result_label: 'AI制作完了',
       admin_notice: '* 上記の事例は管理者ページでリアルタイムに更新されます。',
     },
-    services: {
-      target_01_title: 'ECサイト運営者',
-      target_01_desc: '詳細ページに動画を一つ入れるだけで、購入転換率が変わります。',
-      target_01_action: '商品動画を作る',
-      target_02_title: '不動産仲介業者',
-      target_02_desc: '現場撮影にお困りですか？写真を送るだけで物件紹介動画が完成します。',
-      target_02_action: '物件動画を作る',
-      target_03_title: '自営業・ブランド',
-      target_03_desc: 'チラシよりも強力な店舗PR動画、インスタやTikTokにすぐアップできます。',
-      target_03_action: 'PR動画を作る',
+    services_menu: {
+      title: '私たちができること',
+      subtitle: '業種別のAIデザインソリューションをご確認ください。',
+      categories: {
+        fashion: 'ファッション / 衣類 / 雑貨',
+        food: 'F&B / 飲食業',
+        ecommerce: 'EC / オンラインセラー',
+        interior: 'インテリア / 不動産仲介',
+        creator: 'コンテンツクリエイター',
+        media: '写真 / 映像 / 音響'
+      }
+    },
+    studio: {
+      sidebar: {
+        group_space: '空間・建築',
+        group_commerce: 'コマース・自営業',
+        group_life: '専門サービス・ライフ',
+      },
+      preview: {
+        title: '結果プレビュー',
+        placeholder: '選択したサービスのサンプル画像が\nここに表示されます。',
+        config_title: '設定',
+        mode_create: '生成モード',
+        mode_edit: '編集モード',
+        model_label: 'AIモデル選択',
+        model_std: 'Standard',
+        model_pro: 'Pro (High Quality)',
+        ratio: '比率',
+        resolution: '解像度',
+        style: '画風 (Style)',
+        lang_input: 'テキスト言語 (自動感知)',
+        btn_generate: 'この設定で制作を申請',
+        tip_title: '活用チップ & リファレンスガイド',
+      },
+      options: {
+        ratio_1_1: '1:1 (正方形)',
+        ratio_9_16: '9:16 (縦型)',
+        ratio_16_9: '16:9 (横型)',
+        res_1k: '1K (Standard)',
+        res_4k: '4K (Ultra HD)',
+        style_photo: '実写 (Photorealistic)',
+        style_art: '水彩画 (Watercolor)',
+        style_3d: '3Dレン더リング',
+      }
     },
     pricing: {
       title_prefix: 'これら全てが含まれて、',
@@ -222,8 +324,8 @@ export const translations = {
       submit: '注文を申し込む',
     },
     footer: {
-      address: '住所: ソウル特別市江南区テヘラン路000',
-      copyright: '本サービスはAI技術を活用して制作され、成果物の著作権は購入者に帰属します。',
+      address: '住所: ソウル特別市江西区禾谷路129 305号',
+      copyright: '© 2025 9900Studio All rights reserved.',
       terms: '利用規約',
       privacy: 'プライバシーポリシー',
       admin: '管理者ログイン',
@@ -238,7 +340,7 @@ export const translations = {
       portfolio: 'Dự án mẫu',
       services: 'Dịch vụ',
       pricing: 'Bảng giá',
-      cta: 'Tạo video ngay',
+      cta: 'Bắt đầu Studio',
     },
     hero: {
       badge: 'Đảm bảo hoàn thành trong ngày',
@@ -248,7 +350,7 @@ export const translations = {
       desc: 'Quên đi việc chỉnh sửa phức tạp và chi phí thuê ngoài đắt đỏ.\nChỉ với ',
       desc_price: '₩9,900',
       desc_suffix: ', AI sẽ làm tất cả từ lên kế hoạch đến sản xuất video.',
-      cta: '👉 Tạo video với giá ₩9,900',
+      cta: '👉 Bắt đầu Studio với giá ₩9,900',
       disclaimer: '* Hoàn tiền 100% nếu không hài lòng với kết quả',
     },
     portfolio: {
@@ -262,16 +364,50 @@ export const translations = {
       result_label: 'AI Hoàn thiện',
       admin_notice: '* Các trường hợp trên được cập nhật theo thời gian thực từ trang quản trị.',
     },
-    services: {
-      target_01_title: 'Người bán hàng online',
-      target_01_desc: 'Chỉ cần thêm một video vào trang chi tiết, tỷ lệ chuyển đổi sẽ thay đổi.',
-      target_01_action: 'Tạo video sản phẩm',
-      target_02_title: 'Môi giới bất động sản',
-      target_02_desc: 'Mệt mỏi vì quay phim hiện trường? Chỉ cần gửi ảnh để có video giới thiệu.',
-      target_02_action: 'Tạo video bất động sản',
-      target_03_title: 'Doanh nghiệp địa phương',
-      target_03_desc: 'Mạnh mẽ hơn tờ rơi. Đăng video quảng cáo lên TikTok/Reels ngay lập tức.',
-      target_03_action: 'Tạo video quảng cáo',
+    services_menu: {
+      title: 'Những việc chúng tôi có thể làm',
+      subtitle: 'Kiểm tra các giải pháp thiết kế AI theo ngành.',
+      categories: {
+        fashion: 'Thời trang / Phụ kiện',
+        food: 'Ẩm thực / F&B',
+        ecommerce: 'TMĐT / Bán hàng',
+        interior: 'Nội thất / Bất động sản',
+        creator: 'Sáng tạo nội dung',
+        media: 'Ảnh / Video / Âm thanh'
+      }
+    },
+    studio: {
+      sidebar: {
+        group_space: 'Không gian & Kiến trúc',
+        group_commerce: 'Thương mại & Kinh doanh',
+        group_life: 'Dịch vụ & Đời sống',
+      },
+      preview: {
+        title: 'Xem trước kết quả',
+        placeholder: 'Hình ảnh mẫu của dịch vụ đã chọn\nsẽ được hiển thị tại đây.',
+        config_title: 'Cài đặt',
+        mode_create: 'Chế độ tạo',
+        mode_edit: 'Chế độ sửa',
+        model_label: 'Chọn mô hình AI',
+        model_std: 'Tiêu chuẩn',
+        model_pro: 'Pro (Chất lượng cao)',
+        ratio: 'Tỷ lệ',
+        resolution: 'Độ phân giải',
+        style: 'Phong cách (Style)',
+        lang_input: 'Ngôn ngữ văn bản (Tự động)',
+        btn_generate: 'Đặt hàng với cấu hình này',
+        tip_title: 'Mẹo sử dụng & Hướng dẫn tham khảo',
+      },
+      options: {
+        ratio_1_1: '1:1 (Vuông)',
+        ratio_9_16: '9:16 (Dọc)',
+        ratio_16_9: '16:9 (Ngang)',
+        res_1k: '1K (Tiêu chuẩn)',
+        res_4k: '4K (Ultra HD)',
+        style_photo: 'Ảnh thật (Photorealistic)',
+        style_art: 'Màu nước (Watercolor)',
+        style_3d: 'Kết xuất 3D',
+      }
     },
     pricing: {
       title_prefix: 'Tất cả bao gồm trong',
@@ -300,8 +436,8 @@ export const translations = {
       submit: 'Gửi yêu cầu',
     },
     footer: {
-      address: 'Địa chỉ: Teheran-ro, Gangnam-gu, Seoul',
-      copyright: 'Dịch vụ được tạo bằng công nghệ AI, bản quyền thuộc về người mua.',
+      address: 'Địa chỉ: 129 Hwagok-ro, Gangseo-gu, Seoul',
+      copyright: '© 2025 9900Studio All rights reserved.',
       terms: 'Điều khoản',
       privacy: 'Bảo mật',
       admin: 'Đăng nhập Admin',
@@ -315,195 +451,195 @@ export const translations = {
 
 export const workflowTranslations = {
   ko: {
-    back: '메인으로 돌아가기',
-    title: '영상 제작 신청서',
-    subtitle: 'AI 제작 도구를 통해 빠르고 간편하게 영상을 주문하세요.',
+    back: '뒤로가기',
+    title: '영상 제작 신청',
+    subtitle: 'AI가 기획부터 편집까지, 단돈 9,900원에 완료합니다.',
     step1: {
-      title: '결제 확인',
-      desc_title: '🚀 거의 다 왔습니다!',
-      desc: '먼저 결제를 진행해 주시면 아래의 <b>제작 도구가 활성화</b>됩니다.',
-      btn: '신용카드/페이 결제하기 (₩9,900)',
-      warn: '* 결제 후 제작이 진행되지 않을 경우 100% 환불됩니다.',
-      done: '결제가 완료되었습니다. 아래 단계를 진행해주세요.',
-      alert: "테스트 결제: '확인'을 누르면 결제가 완료됩니다."
+      alert: '테스트 결제가 완료되었습니다. (실제 청구되지 않음)',
+      title: '결제하기',
+      desc_title: '9,900원 결제',
+      desc: '점심 값도 안되는 비용으로<br/><b>고퀄리티 AI 영상</b>을 받아보세요.',
+      btn: '간편 결제하기',
+      warn: '테스트 모드: 실제 결제되지 않습니다.',
+      done: '결제 완료'
     },
     step2: {
-      title: '어떤 종류의 영상을 만들까요?',
+      title: '영상 종류 선택',
       types: [
-        { label: '부동산 매물', desc: '중개용, 분양 홍보' },
-        { label: '제품 홍보', desc: '커머스, 상세페이지' },
-        { label: '회사/인물', desc: '인터뷰, 인사말' },
+        { label: '부동산', desc: '매물 브리핑, 인테리어' },
+        { label: '제품/커머스', desc: '상세페이지, 숏폼 광고' },
+        { label: '퍼스널 브랜딩', desc: '자기소개, 인터뷰' }
       ]
     },
     step3: {
-      title: '제작 자료 업로드',
-      desc: '사진은 최소 3장 이상 권장하며, 고화질일수록 결과물이 좋습니다.',
-      drop_empty: '클릭하여 사진/영상 업로드',
-      drop_selected: '개의 파일이 선택됨',
+      title: '자료 업로드',
+      desc: '영상에 들어갈 사진이나 영상을 올려주세요.',
+      drop_selected: '개 파일 선택됨',
+      drop_empty: '여기를 클릭하여 파일 업로드',
       drop_drag: '또는 파일을 여기로 드래그하세요'
     },
     step4: {
-      title: '무설탕 대본 기획? AI에게 맡기세요!',
-      desc: '이름만 넣으면 5초 만에 판매 시나리오가 나옵니다.',
-      label_topic: '주제/키워드 입력',
-      placeholder: '예: 맛있는 수제 쿠키, 강남역 오피스텔 (한글 160자 이내)',
-      label_result: '생성된 대본 (수정 가능)',
-      empty_guide: '"맛있는 수제 쿠키"를 입력하면 150자 내외의 쇼츠 대본이 생성됩니다.'
+      title: 'AI 대본 생성 (Beta)',
+      desc: '어떤 내용으로 영상을 만들고 싶으신가요?',
+      label_topic: '주제/키워드',
+      placeholder: '예: 강남역 신축 오피스텔 분양, 맛있는 수제 쿠키',
+      label_result: 'AI가 작성한 시나리오',
+      empty_guide: '주제를 입력하고 버튼을 누르면 AI가 대본을 써줍니다.'
     },
     step5: {
-      title: '완성된 영상을 어디로 보내드릴까요?',
+      title: '결과물 받으실 곳',
       label_email: '이메일 주소',
-      placeholder: '예: hello@example.com',
-      err_email: '정확한 이메일 주소를 입력해 주세요.'
+      placeholder: 'name@example.com',
+      err_email: '올바른 이메일 형식이 아닙니다.'
     },
     submit: {
-      locked: '결제 후 신청 가능합니다',
-      active: '입력한 정보로 영상 제작 요청하기',
-      alert: '✅ 주문이 접수되었습니다!\n\n유형: {type}\n대본: {script}\n이메일: {email}\n\n담당자가 확인 후 24시간 내 연락드립니다.'
+      alert: '신청이 완료되었습니다!\n\n종류: {type}\n대본: {script}\n이메일: {email}',
+      locked: '결제 후 신청 가능',
+      active: '제작 신청 완료하기'
     }
   },
   en: {
-    back: 'Back to Home',
-    title: 'Video Production Order',
-    subtitle: 'Order your video quickly and easily with our AI tools.',
+    back: 'Back',
+    title: 'Order Video',
+    subtitle: 'AI handles planning to editing, all for just $9.',
     step1: {
+      alert: 'Test payment complete. (No actual charge)',
       title: 'Payment',
-      desc_title: '🚀 Almost there!',
-      desc: 'Please complete payment to <b>activate the tools below</b>.',
-      btn: 'Pay with Card/PayPal ($9)',
-      warn: '* 100% Refund if production does not proceed.',
-      done: 'Payment completed. Please proceed below.',
-      alert: "Test Payment: Click OK to complete."
+      desc_title: '$9 Payment',
+      desc: 'Get high-quality AI video<br/>for the price of two coffees.',
+      btn: 'Pay Now',
+      warn: 'Test Mode: No actual charge.',
+      done: 'Payment Complete'
     },
     step2: {
-      title: 'What type of video?',
+      title: 'Select Video Type',
       types: [
-        { label: 'Real Estate', desc: 'Listings, Promotion' },
-        { label: 'Product', desc: 'E-commerce, Ads' },
-        { label: 'Company/Person', desc: 'Interview, Intro' },
+        { label: 'Real Estate', desc: 'Property briefing, Interior' },
+        { label: 'Commerce', desc: 'Product details, Short ads' },
+        { label: 'Branding', desc: 'Self-intro, Interview' }
       ]
     },
     step3: {
       title: 'Upload Assets',
-      desc: 'Minimum 3 photos recommended. High quality yields better results.',
-      drop_empty: 'Click to Upload Photos/Videos',
+      desc: 'Upload photos or videos to be included.',
       drop_selected: 'files selected',
-      drop_drag: 'or drag files here'
+      drop_empty: 'Click here to upload files',
+      drop_drag: 'or drag and drop files here'
     },
     step4: {
-      title: 'AI Scriptwriting',
-      desc: 'Enter a topic to generate a sales script in 5 seconds.',
-      label_topic: 'Enter Topic/Keyword',
-      placeholder: 'Ex: Tasty Cookies, Luxury Apartment (Max 160 chars)',
-      label_result: 'Generated Script (Editable)',
-      empty_guide: 'Enter "Tasty Cookies" to generate a short video script.'
+      title: 'AI Script Generation (Beta)',
+      desc: 'What is the video about?',
+      label_topic: 'Topic/Keywords',
+      placeholder: 'e.g., Luxury apartment in NY, Homemade cookies',
+      label_result: 'AI Generated Script',
+      empty_guide: 'Enter a topic and click the button to generate a script.'
     },
     step5: {
-      title: 'Where should we send the video?',
+      title: 'Delivery Info',
       label_email: 'Email Address',
-      placeholder: 'Ex: hello@example.com',
-      err_email: 'Please enter a valid email address.'
+      placeholder: 'name@example.com',
+      err_email: 'Invalid email format.'
     },
     submit: {
-      locked: 'Available after payment',
-      active: 'Submit Order Request',
-      alert: '✅ Order Received!\n\nType: {type}\nScript: {script}\nEmail: {email}\n\nWe will contact you within 24 hours.'
+      alert: 'Order Submitted!\n\nType: {type}\nScript: {script}\nEmail: {email}',
+      locked: 'Pay to Unlock',
+      active: 'Complete Order'
     }
   },
   ja: {
-    back: 'メインに戻る',
-    title: '動画制作申込書',
-    subtitle: 'AI制作ツールで素早く簡単に動画を注文しましょう。',
+    back: '戻る',
+    title: '動画制作申し込み',
+    subtitle: 'AIが企画から編集まで、たった990円で完了します。',
     step1: {
-      title: '決済確認',
-      desc_title: '🚀 あと少しです！',
-      desc: '先に決済を完了すると、以下の<b>制作ツールが有効</b>になります。',
-      btn: 'クレジットカード/Pay決済 (₩9,900)',
-      warn: '* 決済後に制作が進行しない場合は100%返金されます。',
-      done: '決済が完了しました。以下のステップを進めてください。',
-      alert: "テスト決済: 'OK'を押すと決済が完了します。"
+      alert: 'テスト決済が完了しました。（実際の請求はありません）',
+      title: '決済',
+      desc_title: '990円 決済',
+      desc: 'コーヒー2杯分の価格で<br/>高品質なAI動画を受け取ってください。',
+      btn: '今すぐ支払う',
+      warn: 'テストモード：実際に課金されません。',
+      done: '決済完了'
     },
     step2: {
-      title: 'どのような動画を作りますか？',
+      title: '動画の種類を選択',
       types: [
-        { label: '不動産物件', desc: '仲介用、分譲広報' },
-        { label: '製品PR', desc: 'EC、詳細ページ' },
-        { label: '会社/人物', desc: 'インタビュー、挨拶' },
+        { label: '不動産', desc: '物件紹介、インテリア' },
+        { label: '商品/コマース', desc: '詳細ページ、ショート広告' },
+        { label: 'ブランディング', desc: '自己紹介、インタビュー' }
       ]
     },
     step3: {
-      title: '制作資料アップロード',
-      desc: '写真は最低3枚以上推奨、高画質であるほど結果が良いです。',
-      drop_empty: 'クリックして写真/動画をアップロード',
-      drop_selected: '個のファイルを選択中',
+      title: '資料アップロード',
+      desc: '動画に使用する写真や映像をアップロードしてください。',
+      drop_selected: '個のファイルを選択',
+      drop_empty: 'ここをクリックしてファイルをアップロード',
       drop_drag: 'またはファイルをここにドラッグ'
     },
     step4: {
-      title: '無糖台本企画？ AIにお任せ！',
-      desc: '名前を入れるだけで5秒で販売シナリオが出来上がります。',
-      label_topic: 'テーマ/キーワード入力',
-      placeholder: '例: 美味しい手作りクッキー (160文字以内)',
-      label_result: '生成された台本 (修正可能)',
-      empty_guide: '「美味しい手作りクッキー」と入力すると、ショート動画用の台本が生成されます。'
+      title: 'AI台本生成 (Beta)',
+      desc: 'どのような内容の動画を作成しますか？',
+      label_topic: 'トピック/キーワード',
+      placeholder: '例：新宿の新築マンション、手作りクッキー',
+      label_result: 'AIが作成したシナリオ',
+      empty_guide: 'トピックを入力してボタンを押すと、AIが台本を作成します。'
     },
     step5: {
-      title: '完成した動画をどこにお送りしますか？',
+      title: '納品先情報',
       label_email: 'メールアドレス',
-      placeholder: '例: hello@example.com',
-      err_email: '正しいメールアドレスを入力してください。'
+      placeholder: 'name@example.com',
+      err_email: 'メールアドレスの形式が正しくありません。'
     },
     submit: {
-      locked: '決済後に申請可能です',
-      active: '入力した情報で動画制作を依頼する',
-      alert: '✅ 注文が受け付けられました！\n\nタイプ: {type}\n台本: {script}\nメール: {email}\n\n担当者が確認後、24時間以内にご連絡いたします。'
+      alert: '申し込みが完了しました！\n\n種類: {type}\n台本: {script}\nメール: {email}',
+      locked: '決済後に申請可能',
+      active: '制作を申し込む'
     }
   },
   vi: {
-    back: 'Quay lại trang chủ',
-    title: 'Đơn đăng ký sản xuất video',
-    subtitle: 'Đặt hàng video nhanh chóng và dễ dàng với công cụ AI.',
+    back: 'Quay lại',
+    title: 'Đặt hàng Video',
+    subtitle: 'AI xử lý từ lập kế hoạch đến chỉnh sửa, chỉ với 190.000₫.',
     step1: {
-      title: 'Xác nhận thanh toán',
-      desc_title: '🚀 Gần xong rồi!',
-      desc: 'Vui lòng thanh toán trước để <b>kích hoạt công cụ</b> bên dưới.',
-      btn: 'Thanh toán thẻ/Pay (₩9,900)',
-      warn: '* Hoàn tiền 100% nếu việc sản xuất không được tiến hành sau khi thanh toán.',
-      done: 'Thanh toán hoàn tất. Vui lòng tiếp tục các bước dưới đây.',
-      alert: "Thanh toán thử nghiệm: Nhấn 'OK' để hoàn tất."
+      alert: 'Thanh toán thử nghiệm hoàn tất. (Không trừ tiền thật)',
+      title: 'Thanh toán',
+      desc_title: 'Thanh toán 190.000₫',
+      desc: 'Nhận video AI chất lượng cao<br/>chỉ với giá hai ly cà phê.',
+      btn: 'Thanh toán ngay',
+      warn: 'Chế độ thử nghiệm: Không tính phí thực.',
+      done: 'Thanh toán hoàn tất'
     },
     step2: {
-      title: 'Bạn muốn làm loại video nào?',
+      title: 'Chọn loại video',
       types: [
-        { label: 'Bất động sản', desc: 'Môi giới, Quảng cáo' },
-        { label: 'Sản phẩm', desc: 'TMĐT, Trang chi tiết' },
-        { label: 'Công ty/Nhân vật', desc: 'Phỏng vấn, Giới thiệu' },
+        { label: 'Bất động sản', desc: 'Giới thiệu nhà đất, Nội thất' },
+        { label: 'Thương mại', desc: 'Chi tiết sản phẩm, Quảng cáo ngắn' },
+        { label: 'Thương hiệu', desc: 'Giới thiệu bản thân, Phỏng vấn' }
       ]
     },
     step3: {
-      title: 'Tải lên tư liệu',
-      desc: 'Khuyên dùng tối thiểu 3 ảnh, chất lượng càng cao kết quả càng tốt.',
-      drop_empty: 'Nhấn để tải lên ảnh/video',
+      title: 'Tải lên dữ liệu',
+      desc: 'Tải lên ảnh hoặc video để đưa vào video.',
       drop_selected: 'tệp đã chọn',
+      drop_empty: 'Nhấn vào đây để tải lên tệp',
       drop_drag: 'hoặc kéo thả tệp vào đây'
     },
     step4: {
-      title: 'Lập kế hoạch kịch bản AI',
-      desc: 'Nhập chủ đề để tạo kịch bản bán hàng chỉ trong 5 giây.',
-      label_topic: 'Nhập chủ đề/từ khóa',
-      placeholder: 'VD: Bánh quy thủ công ngon (Tối đa 160 ký tự)',
-      label_result: 'Kịch bản đã tạo (Có thể sửa)',
-      empty_guide: 'Nhập "Bánh quy ngon" để tạo kịch bản video ngắn.'
+      title: 'Tạo kịch bản AI (Beta)',
+      desc: 'Bạn muốn làm video về nội dung gì?',
+      label_topic: 'Chủ đề/Từ khóa',
+      placeholder: 'VD: Căn hộ cao cấp Quận 1, Bánh quy thủ công',
+      label_result: 'Kịch bản do AI tạo',
+      empty_guide: 'Nhập chủ đề và nhấn nút để tạo kịch bản.'
     },
     step5: {
-      title: 'Chúng tôi nên gửi video hoàn thiện đến đâu?',
+      title: 'Thông tin nhận hàng',
       label_email: 'Địa chỉ Email',
-      placeholder: 'VD: hello@example.com',
-      err_email: 'Vui lòng nhập địa chỉ email hợp lệ.'
+      placeholder: 'name@example.com',
+      err_email: 'Định dạng email không hợp lệ.'
     },
     submit: {
-      locked: 'Có thể đăng ký sau khi thanh toán',
-      active: 'Gửi yêu cầu sản xuất với thông tin đã nhập',
-      alert: '✅ Đã nhận đơn hàng!\n\nLoại: {type}\nKịch bản: {script}\nEmail: {email}\n\nNhân viên sẽ liên hệ trong vòng 24 giờ.'
+      alert: 'Đã gửi đơn hàng!\n\nLoại: {type}\nKịch bản: {script}\nEmail: {email}',
+      locked: 'Thanh toán để mở khóa',
+      active: 'Hoàn tất đặt hàng'
     }
   }
 };

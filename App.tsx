@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Button } from './components/Button';
 import { OrderWorkflow } from './components/OrderWorkflow';
 import { AdminPage } from './components/AdminPage';
-import { usePortfolio } from './contexts/PortfolioContext';
+import { TermsPage } from './components/TermsPage';
+import { PrivacyPage } from './components/PrivacyPage';
+import { ServiceMenu } from './components/ServiceMenu';
 import { useLanguage } from './contexts/LanguageContext';
 import { 
   CheckCircle2, 
@@ -13,11 +15,7 @@ import {
   Star,
   MessageCircle,
   Phone,
-  Mail,
   Zap,
-  ArrowDown,
-  Images,
-  Film,
   Lock,
   Globe,
   ChevronDown
@@ -26,8 +24,7 @@ import {
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  const [view, setView] = useState<'landing' | 'order' | 'admin'>('landing');
-  const { items: portfolioItems } = usePortfolio();
+  const [view, setView] = useState<'landing' | 'order' | 'admin' | 'terms' | 'privacy'>('landing');
   const { t, language, setLanguage } = useLanguage();
 
   const languages = [
@@ -82,6 +79,11 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // 1:1 상담 링크 (카카오톡)
+  const handleChatInquiry = () => {
+    window.open('http://pf.kakao.com/_YfxiUn/chat', '_blank');
+  };
+
   // --- View Routing ---
   if (view === 'order') {
     return <OrderWorkflow onBack={handleBackToLanding} />;
@@ -91,9 +93,16 @@ const App: React.FC = () => {
     return <AdminPage onBack={handleBackToLanding} />;
   }
 
-  // Define Nav Links dynamically based on translation
+  if (view === 'terms') {
+    return <TermsPage onBack={handleBackToLanding} />;
+  }
+
+  if (view === 'privacy') {
+    return <PrivacyPage onBack={handleBackToLanding} />;
+  }
+
+  // Define Nav Links (Portfolio removed)
   const navLinks = [
-    { label: t('nav.portfolio'), id: 'portfolio' },
     { label: t('nav.services'), id: 'services' },
     { label: t('nav.pricing'), id: 'pricing' },
   ];
@@ -110,7 +119,7 @@ const App: React.FC = () => {
               <PlayCircle className="w-5 h-5 text-yellow-400 fill-yellow-400" />
             </div>
             <span className="text-lg font-black text-slate-900 tracking-tight">
-              AI VOCAL<span className="text-yellow-500"> FX</span>
+              9900<span className="text-yellow-500">Studio</span>
             </span>
           </div>
 
@@ -245,115 +254,40 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* --- Section 2: Portfolio Showcase --- */}
-        <section id="portfolio" className="py-20 bg-slate-50">
-          <div className="container mx-auto px-4 max-w-screen-xl">
-            <div className="text-center mb-16">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
-                {t('portfolio.title')}
-              </h2>
-              <p className="text-slate-500">
-                {t('portfolio.subtitle_prefix')} <span className="text-blue-600 font-bold bg-blue-50 px-1">{t('portfolio.subtitle_input')}</span> {t('portfolio.subtitle_mid')} <span className="text-yellow-600 font-bold bg-yellow-50 px-1">{t('portfolio.subtitle_result')}</span>{t('portfolio.subtitle_suffix')}
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {portfolioItems.map((item) => (
-                <div key={item.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col relative">
-                  
-                  {/* Top Badge (Only translate if it's static, otherwise keep user content) */}
-                  <div className="absolute top-4 right-4 z-20 bg-yellow-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                    {item.tag}
-                  </div>
-
-                  <div className="p-5 pb-0">
-                    <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
-                    <p className="text-slate-500 text-sm">{item.category} • {item.desc}</p>
-                  </div>
-
-                  {/* Visual Comparison Area */}
-                  <div className="p-5 flex flex-col gap-3">
-                    
-                    {/* Input Area */}
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Images className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs font-bold text-slate-500">{t('portfolio.input_label')}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        {item.inputs.map((img, i) => (
-                          <div key={i} className="w-1/3 aspect-square rounded-lg overflow-hidden border border-slate-200 bg-white relative">
-                            <img src={img} alt="input" className="w-full h-full object-cover opacity-80" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Arrow Indicator */}
-                    <div className="flex justify-center -my-2 relative z-10">
-                      <div className="bg-white border border-slate-200 rounded-full p-1 shadow-sm">
-                        <ArrowDown className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-
-                    {/* Output Area (Video Thumbnail) */}
-                    <div className="relative rounded-xl overflow-hidden shadow-md aspect-video group-hover:ring-2 ring-yellow-400 transition-all">
-                       <img src={item.result} alt="result" className="w-full h-full object-cover" />
-                       <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                          <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 shadow-lg group-hover:scale-110 transition-transform">
-                             <PlayCircle className="w-6 h-6 text-white fill-white/20" />
-                          </div>
-                       </div>
-                       <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
-                         <div className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                           <Film className="w-3 h-3" /> REC
-                         </div>
-                         <span className="text-white text-xs font-medium drop-shadow-md">{t('portfolio.result_label')}</span>
-                       </div>
-                    </div>
-
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="text-center mt-12">
-               <p className="text-slate-500 text-sm mb-4">
-                 {t('portfolio.admin_notice')}
-               </p>
-            </div>
+        {/* --- Section 3: Service Menu (Main Showcase) --- */}
+        <section id="services" className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
+          {/* Subtle Grid Background for Trust/Tech feel */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+               style={{ backgroundImage: 'radial-gradient(#1e293b 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
           </div>
-        </section>
+          
+          {/* Professional Gradient Accent */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
 
-        {/* --- Section 3: Targeting (Services) --- */}
-        <section id="services" className="py-20 bg-white border-y border-slate-100">
-          <div className="container mx-auto px-4 max-w-screen-xl">
-             <div className="grid md:grid-cols-3 gap-6">
-               <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-100">
-                  <div className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Target 01</div>
-                  <h3 className="text-xl font-black text-slate-900 mb-3">{t('services.target_01_title')}</h3>
-                  <p className="text-slate-600 mb-6 min-h-[3rem] break-keep">{t('services.target_01_desc')}</p>
-                  <button onClick={handleOrder} className="text-sm font-bold text-slate-900 flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-yellow-400 pb-1 w-fit">
-                    {t('services.target_01_action')} <ArrowRight className="w-4 h-4" />
-                  </button>
+          <div className="container mx-auto px-4 max-w-screen-xl relative z-10">
+             <div className="text-center mb-20">
+               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                  Our Capabilities
                </div>
-               <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-100">
-                  <div className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Target 02</div>
-                  <h3 className="text-xl font-black text-slate-900 mb-3">{t('services.target_02_title')}</h3>
-                  <p className="text-slate-600 mb-6 min-h-[3rem] break-keep">{t('services.target_02_desc')}</p>
-                  <button onClick={handleOrder} className="text-sm font-bold text-slate-900 flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-yellow-400 pb-1 w-fit">
-                    {t('services.target_02_action')} <ArrowRight className="w-4 h-4" />
-                  </button>
-               </div>
-               <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-100">
-                  <div className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Target 03</div>
-                  <h3 className="text-xl font-black text-slate-900 mb-3">{t('services.target_03_title')}</h3>
-                  <p className="text-slate-600 mb-6 min-h-[3rem] break-keep">{t('services.target_03_desc')}</p>
-                  <button onClick={handleOrder} className="text-sm font-bold text-slate-900 flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-yellow-400 pb-1 w-fit">
-                    {t('services.target_03_action')} <ArrowRight className="w-4 h-4" />
-                  </button>
-               </div>
+               <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
+                 {t('services_menu.title')}
+               </h2>
+               <div className="w-24 h-1.5 bg-yellow-400 mx-auto mb-6 rounded-full"></div>
+               <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto whitespace-pre-line leading-relaxed">
+                 {t('services_menu.subtitle')}
+               </p>
              </div>
+             
+             <ServiceMenu />
+             
+             <div className="mt-16 text-center">
+                <p className="text-slate-500 mb-6 text-sm">원하는 서비스가 없으신가요? 1:1 맞춤 제작도 가능합니다.</p>
+                <Button size="lg" onClick={handleChatInquiry} className="shadow-xl shadow-yellow-400/20 px-10 py-4 text-lg">
+                   1:1 상담 및 맞춤 제작 문의
+                </Button>
+             </div>
+
           </div>
         </section>
 
@@ -410,16 +344,16 @@ const App: React.FC = () => {
              </p>
 
              <div className="grid md:grid-cols-2 gap-4 mb-8">
-                <a href="tel:010-1234-5678" className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group">
+                <a href="tel:010-7320-5565" className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group">
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-yellow-100 transition-colors">
                         <Phone className="w-6 h-6 text-slate-400 group-hover:text-yellow-600" />
                     </div>
                     <div className="text-left">
                         <p className="text-xs font-bold text-slate-500 uppercase">{t('contact.phone_label')}</p>
-                        <p className="text-lg font-bold text-slate-900">010-1234-5678</p>
+                        <p className="text-lg font-bold text-slate-900">010-7320-5565</p>
                     </div>
                 </a>
-                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group cursor-pointer" onClick={() => alert("카카오톡 채널로 연결됩니다.")}>
+                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group cursor-pointer" onClick={handleChatInquiry}>
                     <div className="w-12 h-12 bg-[#FEE500] rounded-full flex items-center justify-center">
                         <MessageCircle className="w-6 h-6 text-slate-900" />
                     </div>
@@ -430,18 +364,7 @@ const App: React.FC = () => {
                 </div>
              </div>
              
-             <div className="bg-slate-50 p-6 rounded-xl text-left border border-slate-200">
-               <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                 <Mail className="w-5 h-5" /> {t('contact.email_title')}
-               </h3>
-               <div className="space-y-4">
-                 <input type="text" placeholder={t('contact.input_phone')} className="w-full p-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-yellow-400 text-slate-900 placeholder:text-slate-400" />
-                 <textarea placeholder={t('contact.input_desc')} className="w-full p-3 bg-white border border-slate-300 rounded-lg h-32 focus:outline-none focus:border-yellow-400 resize-none text-slate-900 placeholder:text-slate-400"></textarea>
-                 <Button fullWidth onClick={() => alert("접수가 완료되었습니다. 담당자가 곧 연락드립니다.")}>
-                    {t('contact.submit')}
-                 </Button>
-               </div>
-             </div>
+             {/* Email Inquiry Section Removed */}
            </div>
         </section>
 
@@ -453,18 +376,18 @@ const App: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-                <span className="font-black text-white text-lg">AI VOCAL FX</span>
+                <span className="font-black text-white text-lg">9900Studio</span>
               </div>
-              <p>사업자등록번호: 000-00-00000 | 대표: 김대표</p>
+              <p>사업자등록번호: 109-02-01988 | 대표: 이성열</p>
               <p>{t('footer.address')}</p>
               <p className="mt-2 text-xs text-slate-500">
-                *{t('footer.copyright')}
+                {t('footer.copyright')}
               </p>
             </div>
             <div className="flex flex-col gap-4 items-end">
               <div className="flex gap-6">
-                <a href="#" className="hover:text-white transition-colors">{t('footer.terms')}</a>
-                <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
+                <button onClick={() => { setView('terms'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.terms')}</button>
+                <button onClick={() => { setView('privacy'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.privacy')}</button>
               </div>
               {/* 관리자 페이지 진입 버튼 (Footer에 위치) */}
               <button 
@@ -476,7 +399,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <p className="mt-8 text-center text-slate-600 text-xs">
-            © 2024 AI VOCAL FX. All rights reserved.
+            {t('footer.copyright')}
           </p>
         </div>
       </footer>

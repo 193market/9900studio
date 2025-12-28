@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Image as ImageIcon, Film, Settings, RotateCcw, Save } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Image as ImageIcon, Film, Settings, RotateCcw, Save, Grid } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -10,13 +10,17 @@ interface AdminPageProps {
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'settings'>('portfolio');
+  const [activeTab, setActiveTab] = useState<'services' | 'settings'>('services');
   
   // 비밀번호 변경용 State
   const [newPw, setNewPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
 
-  const { items, adminPassword, updateItem, updateImage, updatePassword, resetData } = usePortfolio();
+  const { 
+    serviceItems, adminPassword, 
+    updateServiceItem, updateServiceImage,
+    updatePassword, resetData 
+  } = usePortfolio();
 
   // 로그인 처리
   const handleLogin = (e: React.FormEvent) => {
@@ -54,7 +58,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
               <Lock className="w-8 h-8 text-slate-700" />
             </div>
             <h2 className="text-2xl font-black text-slate-900">관리자 로그인</h2>
-            <p className="text-slate-500 text-sm mt-2">포트폴리오 관리 페이지에 접속합니다.</p>
+            <p className="text-slate-500 text-sm mt-2">포트폴리오 및 서비스 관리</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
@@ -101,57 +105,50 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-slate-200">
+        <div className="flex gap-4 mb-8 border-b border-slate-200 overflow-x-auto">
            <button 
-             onClick={() => setActiveTab('portfolio')}
-             className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'portfolio' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+             onClick={() => setActiveTab('services')}
+             className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'services' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
            >
-             <Film className="w-4 h-4" /> 포트폴리오 관리
+             <Grid className="w-4 h-4" /> 서비스 메뉴 관리
            </button>
            <button 
              onClick={() => setActiveTab('settings')}
-             className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'settings' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+             className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
            >
              <Settings className="w-4 h-4" /> 설정 (비밀번호)
            </button>
         </div>
 
-        {/* Tab Content: Portfolio */}
-        {activeTab === 'portfolio' && (
+        {/* Tab Content: Services */}
+        {activeTab === 'services' && (
           <>
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">포트폴리오 수정</h2>
+                <h2 className="text-2xl font-bold text-slate-900">서비스 메뉴 수정</h2>
                 <p className="text-sm text-slate-500 bg-white px-3 py-1 rounded border border-slate-200 shadow-sm">
-                    * 이미지가 많으면 로딩이 느려질 수 있습니다.
+                    카테고리별 서비스 목록
                 </p>
             </div>
 
             <div className="space-y-8">
-              {items.map((item) => (
+              {serviceItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 className="font-bold text-slate-700">#{item.id}번 사례 수정</h3>
-                    <span className="text-xs font-mono text-slate-400">ID: {item.id}</span>
+                    <h3 className="font-bold text-slate-700">
+                        <span className="text-slate-400 mr-2">[{item.categoryKey}]</span>
+                        {item.title}
+                    </h3>
                   </div>
                   
                   <div className="p-6 grid md:grid-cols-2 gap-8">
                     {/* 텍스트 수정 영역 */}
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">카테고리</label>
-                        <input 
-                          type="text" 
-                          value={item.category}
-                          onChange={(e) => updateItem(item.id, 'category', e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none transition-colors text-slate-900"
-                        />
-                      </div>
-                      <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
                         <input 
                           type="text" 
                           value={item.title}
-                          onChange={(e) => updateItem(item.id, 'title', e.target.value)}
+                          onChange={(e) => updateServiceItem(item.id, 'title', e.target.value)}
                           className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none font-bold transition-colors text-slate-900"
                         />
                       </div>
@@ -160,24 +157,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         <input 
                           type="text" 
                           value={item.desc}
-                          onChange={(e) => updateItem(item.id, 'desc', e.target.value)}
+                          onChange={(e) => updateServiceItem(item.id, 'desc', e.target.value)}
                           className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none transition-colors text-slate-900"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">태그 (우측 상단 뱃지)</label>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">뱃지 (BEST, HOT 등)</label>
                         <input 
                           type="text" 
-                          value={item.tag}
-                          onChange={(e) => updateItem(item.id, 'tag', e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-blue-600 transition-colors"
+                          value={item.badge}
+                          onChange={(e) => updateServiceItem(item.id, 'badge', e.target.value)}
+                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-red-500 transition-colors"
+                          placeholder="비워두면 표시 안됨"
                         />
                       </div>
                     </div>
 
-                    {/* 이미지 업로드 영역 */}
+                    {/* 이미지 업로드 영역 (서비스) */}
                     <div className="space-y-6">
-                        
                         {/* Input Images */}
                         <div>
                             <label className="block text-xs font-bold text-slate-500 mb-2 flex items-center gap-1">
@@ -194,7 +191,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                                 accept="image/*"
                                                 className="hidden"
                                                 onChange={(e) => {
-                                                    if(e.target.files?.[0]) updateImage(item.id, 'input', idx, e.target.files[0]);
+                                                    if(e.target.files?.[0]) updateServiceImage(item.id, 'input', idx, e.target.files[0]);
                                                 }}
                                             />
                                         </label>
@@ -220,7 +217,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                         accept="image/*"
                                         className="hidden"
                                         onChange={(e) => {
-                                            if(e.target.files?.[0]) updateImage(item.id, 'result', null, e.target.files[0]);
+                                            if(e.target.files?.[0]) updateServiceImage(item.id, 'result', null, e.target.files[0]);
                                         }}
                                     />
                                 </label>
@@ -272,7 +269,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                    <AlertIcon /> 데이터 초기화
                 </h3>
                 <p className="text-red-600 text-sm mb-6">
-                  모든 포트폴리오 데이터와 비밀번호를 초기 상태로 되돌립니다. 이 작업은 되돌릴 수 없습니다.
+                  모든 포트폴리오/서비스 데이터와 비밀번호를 초기 상태로 되돌립니다.
                 </p>
                 <button 
                   onClick={resetData}

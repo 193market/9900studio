@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { generateOrderScript } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
+import { usePortfolio } from '../contexts/PortfolioContext';
 import { 
   CreditCard, 
   UploadCloud, 
@@ -10,20 +11,24 @@ import {
   Loader2, 
   Lock, 
   ChevronLeft,
-  Home,
-  ShoppingBag,
-  UserSquare2,
-  AlertCircle
+  AlertCircle,
+  Shirt, UtensilsCrossed, ShoppingBag, Building2, MonitorPlay, Camera,
+  Check
 } from 'lucide-react';
 
 interface OrderWorkflowProps {
   onBack: () => void;
+  initialService?: string;
 }
 
-export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
+export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialService }) => {
   const [step, setStep] = useState(1);
   const [isPaid, setIsPaid] = useState(false);
+  
+  // Selection State
+  const [selectedCategory, setSelectedCategory] = useState<string>('fashion');
   const [videoType, setVideoType] = useState<string>('');
+  
   const [files, setFiles] = useState<FileList | null>(null);
   const [scriptTopic, setScriptTopic] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
@@ -31,14 +36,37 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
+  const { serviceItems } = usePortfolio();
+
+  // Categories Definition (Same as ServiceMenu)
+  const categories = [
+    { id: 'fashion', label: t('services_menu.categories.fashion'), icon: Shirt },
+    { id: 'food', label: t('services_menu.categories.food'), icon: UtensilsCrossed },
+    { id: 'ecommerce', label: t('services_menu.categories.ecommerce'), icon: ShoppingBag },
+    { id: 'interior', label: t('services_menu.categories.interior'), icon: Building2 },
+    { id: 'creator', label: t('services_menu.categories.creator'), icon: MonitorPlay },
+    { id: 'media', label: t('services_menu.categories.media'), icon: Camera },
+  ];
+
+  // Initialize with passed service
+  useEffect(() => {
+    if (initialService) {
+      setVideoType(initialService);
+      // Find category of the service
+      const foundItem = serviceItems.find(item => item.title === initialService);
+      if (foundItem) {
+        setSelectedCategory(foundItem.categoryKey);
+      }
+    }
+  }, [initialService, serviceItems]);
 
   // Step 1: Payment Simulator
   const handlePayment = () => {
     const confirmPayment = window.confirm(wt('step1.alert'));
     if (confirmPayment) {
       setIsPaid(true);
-      setStep(2); // Move to next step automatically
+      // Removed auto-advance to let user verify settings
     }
   };
 
@@ -61,7 +89,6 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
     setEmailError('');
     
     // Final Submission Logic
-    // Simple string replacement for alert message
     let alertMsg = wt('submit.alert');
     alertMsg = alertMsg.replace('{type}', videoType);
     alertMsg = alertMsg.replace('{script}', generatedScript ? 'AI Created' : 'None');
@@ -71,18 +98,12 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
     onBack(); // Return to home
   };
 
-  // Helper icons array mapped to types
-  const typeIcons = {
-    0: <Home className="w-6 h-6"/>,
-    1: <ShoppingBag className="w-6 h-6"/>,
-    2: <UserSquare2 className="w-6 h-6"/>
-  };
-
-  const videoTypes = wt('step2.types') as Array<{label: string, desc: string}>;
+  // Filter items for current category
+  const currentItems = serviceItems.filter(item => item.categoryKey === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 animate-in fade-in slide-in-from-bottom-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-12 px-4 animate-in fade-in slide-in-from-bottom-4">
+      <div className="max-w-3xl mx-auto">
         <button 
           onClick={onBack}
           className="flex items-center text-slate-500 hover:text-slate-900 mb-6 font-medium transition-colors"
@@ -124,30 +145,75 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
             )}
           </div>
 
-          {/* Wrapper for steps 2-5 to handle disabled state */}
-          <div className={`space-y-6 transition-all duration-500 ${!isPaid ? 'opacity-40 pointer-events-none grayscale-[0.5]' : ''}`}>
+          {/* Wrapper for steps 2-5 */}
+          {/* 개발 중 편의를 위해 결제 여부와 상관없이 항상 활성화 (잠금 클래스 제거됨) */}
+          <div className="space-y-6 transition-all duration-500">
             
-            {/* Step 2: Video Type */}
+            {/* Step 2: Video Type (Enhanced) */}
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-xl font-bold flex items-center gap-2 mb-6">
                 <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm">2</span>
                 {wt('step2.title')}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {videoTypes.map((type, idx) => (
-                  <div 
-                    key={idx}
-                    onClick={() => setVideoType(type.label)}
-                    className={`cursor-pointer p-4 rounded-xl border-2 transition-all hover:bg-slate-50 ${videoType === type.label ? 'border-yellow-400 bg-yellow-50/50 ring-1 ring-yellow-400' : 'border-slate-100'}`}
-                  >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${videoType === type.label ? 'bg-yellow-400 text-slate-900' : 'bg-slate-100 text-slate-500'}`}>
-                      {(typeIcons as any)[idx]}
-                    </div>
-                    <div className="font-bold text-slate-900">{type.label}</div>
-                    <div className="text-xs text-slate-500 mt-1">{type.desc}</div>
-                  </div>
-                ))}
+
+              {/* Category Tabs */}
+              <div className="flex overflow-x-auto pb-4 gap-2 mb-4 no-scrollbar">
+                {categories.map((cat) => {
+                   const Icon = cat.icon;
+                   const isActive = selectedCategory === cat.id;
+                   return (
+                     <button
+                       key={cat.id}
+                       onClick={() => setSelectedCategory(cat.id)}
+                       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border ${
+                         isActive 
+                           ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
+                           : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                       }`}
+                     >
+                       <Icon className="w-4 h-4" />
+                       {cat.label}
+                     </button>
+                   );
+                })}
               </div>
+
+              {/* Service Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {currentItems.map((item) => {
+                  const isSelected = videoType === item.title;
+                  return (
+                    <div 
+                      key={item.id}
+                      onClick={() => setVideoType(item.title)}
+                      className={`cursor-pointer p-4 rounded-xl border-2 text-left transition-all relative ${
+                        isSelected 
+                          ? 'border-yellow-400 bg-yellow-50/30 ring-1 ring-yellow-400' 
+                          : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+                           item.badge ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
+                         }`}>
+                           {item.badge || 'Basic'}
+                         </span>
+                         {isSelected && <CheckCircle2 className="w-5 h-5 text-yellow-500 fill-white" />}
+                      </div>
+                      <h4 className="font-bold text-slate-900 text-sm mb-1 line-clamp-1">{item.title}</h4>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {!videoType && (
+                 <p className="text-red-500 text-xs mt-4 font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> 제작할 영상 종류를 선택해주세요.
+                 </p>
+              )}
             </div>
 
             {/* Step 3: Upload */}
@@ -158,16 +224,16 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
               </h2>
               <p className="text-sm text-slate-500 mb-6 ml-10">{wt('step3.desc')}</p>
               
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-yellow-400 hover:bg-slate-50 transition-colors cursor-pointer relative">
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-yellow-400 hover:bg-slate-50 transition-colors cursor-pointer relative group">
                 <input 
                   type="file" 
                   multiple 
                   accept="image/*,video/*"
                   onChange={(e) => setFiles(e.target.files)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 text-slate-500">
+                <div className="flex flex-col items-center pointer-events-none">
+                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 text-slate-500 group-hover:bg-yellow-100 group-hover:text-yellow-600 transition-colors">
                     <UploadCloud className="w-6 h-6" />
                   </div>
                   <p className="font-bold text-slate-700">
@@ -258,20 +324,11 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack }) => {
                 onClick={handleSubmit} 
                 fullWidth 
                 size="lg" 
-                disabled={!isPaid || !videoType || !email}
+                disabled={!videoType || !email}
                 className="text-lg py-5 shadow-2xl shadow-yellow-400/30"
               >
-                {!isPaid ? (
-                  <>
-                    <Lock className="w-5 h-5 mr-2" />
-                    {wt('submit.locked')}
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 mr-2" />
-                    {wt('submit.active')}
-                  </>
-                )}
+                <CheckCircle2 className="w-5 h-5 mr-2" />
+                {wt('submit.active')}
               </Button>
             </div>
             

@@ -71,7 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950"></div>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-yellow-400/20 rounded-full blur-3xl"></div>
             <div className="relative z-10 text-center">
-                <h3 className="text-2xl font-black text-white tracking-tight">AI VOCAL<span className="text-yellow-400"> FX</span></h3>
+                <h3 className="text-2xl font-black text-white tracking-tight">9900<span className="text-yellow-400">Studio</span></h3>
                 <p className="text-slate-400 text-sm mt-1">
                     돌아오신 것을 환영합니다!
                 </p>
