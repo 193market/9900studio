@@ -7,7 +7,11 @@ import {
   MonitorPlay, Camera, Wand2
 } from 'lucide-react';
 
-export const ServiceMenu: React.FC = () => {
+interface ServiceMenuProps {
+  onOrder: (serviceName: string) => void;
+}
+
+export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   const { t } = useLanguage();
   const { serviceItems } = usePortfolio(); 
   const [activeCategory, setActiveCategory] = useState<'fashion' | 'food' | 'ecommerce' | 'interior' | 'creator' | 'media'>('fashion');
@@ -148,7 +152,10 @@ export const ServiceMenu: React.FC = () => {
 
               {/* Hover Action (Desktop) */}
               <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-white/90 backdrop-blur border-t border-slate-100 hidden md:block">
-                 <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                 <button 
+                    onClick={() => onOrder(item.title)}
+                    className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                 >
                     이 스타일로 제작하기 <ArrowRight className="w-4 h-4" />
                  </button>
               </div>

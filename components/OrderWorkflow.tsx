@@ -33,8 +33,14 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
   const [scriptTopic, setScriptTopic] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // User Info State
   const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { t, wt } = useLanguage();
   const { serviceItems } = usePortfolio();
@@ -79,23 +85,59 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
     setIsGenerating(false);
   };
 
-  // Step 5: Email Validation & Submit
-  const handleSubmit = () => {
+  // Step 5: Email Validation & Submit (Formspree)
+  const handleSubmit = async () => {
+    // 1. Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setEmailError(wt('step5.err_email'));
+      setErrorMsg(wt('step5.err_email'));
       return;
     }
-    setEmailError('');
-    
-    // Final Submission Logic
-    let alertMsg = wt('submit.alert');
-    alertMsg = alertMsg.replace('{type}', videoType);
-    alertMsg = alertMsg.replace('{script}', generatedScript ? 'AI Created' : 'None');
-    alertMsg = alertMsg.replace('{email}', email);
+    if (!companyName.trim() || !phoneNumber.trim()) {
+      setErrorMsg(wt('step5.err_common'));
+      return;
+    }
+    setErrorMsg('');
+    setIsSubmitting(true);
 
-    alert(alertMsg);
-    onBack(); // Return to home
+    // 2. Data Preparation
+    // Formspree는 기본적으로 JSON이나 FormData를 받습니다.
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('company', companyName);
+    formData.append('phone', phoneNumber);
+    formData.append('videoType', videoType);
+    formData.append('category', selectedCategory);
+    formData.append('scriptTopic', scriptTopic);
+    formData.append('generatedScript', generatedScript);
+    if (files) {
+        formData.append('fileCount', files.length.toString());
+        // Formspree 무료 플랜은 파일 업로드에 제한이 있을 수 있으나 메타데이터는 전송됩니다.
+    }
+
+    try {
+        // Formspree로 데이터 전송
+        // 지정된 이메일: infin@naver.com
+        const response = await fetch("https://formspree.io/infin@naver.com", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            },
+            body: formData
+        });
+
+        if (response.ok) {
+            alert(wt('submit.alert'));
+            onBack(); // Return to home
+        } else {
+            alert("전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    } catch (error) {
+        console.error("Submission error:", error);
+        alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   // Filter items for current category
@@ -294,25 +336,53 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
               </div>
             </div>
 
-            {/* Step 5: Delivery Info */}
+            {/* Step 5: Applicant Info */}
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-xl font-bold flex items-center gap-2 mb-6">
                 <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm">5</span>
                 {wt('step5.title')}
               </h2>
               
-              <div className="space-y-2">
-                <label className="font-bold text-slate-700 text-sm">{wt('step5.label_email')}</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={wt('step5.placeholder')}
-                  className={`w-full p-4 border bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors text-slate-900 placeholder:text-slate-400 ${emailError ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
-                />
-                {emailError && (
-                  <p className="text-red-500 text-xs flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {emailError}
+              <div className="space-y-4">
+                {/* 회사명 */}
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 text-sm">{wt('step5.label_company')}</label>
+                  <input 
+                    type="text" 
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder={wt('step5.placeholder_company')}
+                    className="w-full p-4 border bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors text-slate-900 placeholder:text-slate-400 border-slate-300"
+                  />
+                </div>
+
+                {/* 전화번호 */}
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 text-sm">{wt('step5.label_phone')}</label>
+                  <input 
+                    type="tel" 
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder={wt('step5.placeholder_phone')}
+                    className="w-full p-4 border bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors text-slate-900 placeholder:text-slate-400 border-slate-300"
+                  />
+                </div>
+
+                {/* 이메일 */}
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 text-sm">{wt('step5.label_email')}</label>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={wt('step5.placeholder')}
+                    className={`w-full p-4 border bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors text-slate-900 placeholder:text-slate-400 ${errorMsg ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+                  />
+                </div>
+                
+                {errorMsg && (
+                  <p className="text-red-500 text-xs flex items-center gap-1 animate-pulse">
+                    <AlertCircle className="w-3 h-3" /> {errorMsg}
                   </p>
                 )}
               </div>
@@ -324,11 +394,20 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
                 onClick={handleSubmit} 
                 fullWidth 
                 size="lg" 
-                disabled={!videoType || !email}
+                disabled={!videoType || !email || !companyName || !phoneNumber || isSubmitting}
                 className="text-lg py-5 shadow-2xl shadow-yellow-400/30"
               >
-                <CheckCircle2 className="w-5 h-5 mr-2" />
-                {wt('submit.active')}
+                {isSubmitting ? (
+                   <>
+                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                     {wt('submit.sending')}
+                   </>
+                ) : (
+                   <>
+                     <CheckCircle2 className="w-5 h-5 mr-2" />
+                     {wt('submit.active')}
+                   </>
+                )}
               </Button>
             </div>
             

@@ -1,6 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 브라우저 환경 등에서 process가 정의되지 않았을 때를 대비한 안전한 접근
+const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+const ai = new GoogleGenAI({ apiKey });
 
 export const generateSampleScript = async (productName: string, type: string): Promise<string> => {
   try {

@@ -487,15 +487,21 @@ export const workflowTranslations = {
       empty_guide: '주제를 입력하고 버튼을 누르면 AI가 대본을 써줍니다.'
     },
     step5: {
-      title: '결과물 받으실 곳',
+      title: '신청자 정보 입력',
       label_email: '이메일 주소',
+      label_company: '회사/단체명',
+      label_phone: '연락처 (핸드폰)',
       placeholder: 'name@example.com',
-      err_email: '올바른 이메일 형식이 아닙니다.'
+      placeholder_company: '예: 193market',
+      placeholder_phone: '예: 010-1234-5678',
+      err_email: '올바른 이메일 형식이 아닙니다.',
+      err_common: '모든 항목을 입력해주세요.'
     },
     submit: {
-      alert: '신청이 완료되었습니다!\n\n종류: {type}\n대본: {script}\n이메일: {email}',
+      alert: '신청이 완료되었습니다! 확인 메일이 발송됩니다.',
       locked: '결제 후 신청 가능',
-      active: '제작 신청 완료하기'
+      active: '제작 신청 완료하기',
+      sending: '전송 중...'
     }
   },
   en: {
@@ -535,15 +541,21 @@ export const workflowTranslations = {
       empty_guide: 'Enter a topic and click the button to generate a script.'
     },
     step5: {
-      title: 'Delivery Info',
+      title: 'Applicant Info',
       label_email: 'Email Address',
+      label_company: 'Company Name',
+      label_phone: 'Phone Number',
       placeholder: 'name@example.com',
-      err_email: 'Invalid email format.'
+      placeholder_company: 'e.g. 193market',
+      placeholder_phone: 'e.g. 010-1234-5678',
+      err_email: 'Invalid email format.',
+      err_common: 'Please fill in all fields.'
     },
     submit: {
-      alert: 'Order Submitted!\n\nType: {type}\nScript: {script}\nEmail: {email}',
+      alert: 'Order Submitted! Confirmation email sent.',
       locked: 'Pay to Unlock',
-      active: 'Complete Order'
+      active: 'Complete Order',
+      sending: 'Sending...'
     }
   },
   ja: {
@@ -583,15 +595,21 @@ export const workflowTranslations = {
       empty_guide: 'トピックを入力してボタンを押すと、AIが台本を作成します。'
     },
     step5: {
-      title: '納品先情報',
+      title: '申込者情報',
       label_email: 'メールアドレス',
+      label_company: '会社・団体名',
+      label_phone: '電話番号（携帯）',
       placeholder: 'name@example.com',
-      err_email: 'メールアドレスの形式が正しくありません。'
+      placeholder_company: '例：193market',
+      placeholder_phone: '例：090-1234-5678',
+      err_email: 'メールアドレスの形式が正しくありません。',
+      err_common: 'すべての項目を入力してください。'
     },
     submit: {
-      alert: '申し込みが完了しました！\n\n種類: {type}\n台本: {script}\nメール: {email}',
+      alert: '申し込みが完了しました！確認メールが送信されます。',
       locked: '決済後に申請可能',
-      active: '制作を申し込む'
+      active: '制作を申し込む',
+      sending: '送信中...'
     }
   },
   vi: {
@@ -631,15 +649,21 @@ export const workflowTranslations = {
       empty_guide: 'Nhập chủ đề và nhấn nút để tạo kịch bản.'
     },
     step5: {
-      title: 'Thông tin nhận hàng',
+      title: 'Thông tin người đăng ký',
       label_email: 'Địa chỉ Email',
+      label_company: 'Tên công ty/Tổ chức',
+      label_phone: 'Số điện thoại',
       placeholder: 'name@example.com',
-      err_email: 'Định dạng email không hợp lệ.'
+      placeholder_company: 'VD: 193market',
+      placeholder_phone: 'VD: 090-1234-5678',
+      err_email: 'Định dạng email không hợp lệ.',
+      err_common: 'Vui lòng điền đầy đủ thông tin.'
     },
     submit: {
-      alert: 'Đã gửi đơn hàng!\n\nLoại: {type}\nKịch bản: {script}\nEmail: {email}',
+      alert: 'Đã gửi đơn hàng! Email xác nhận đã được gửi.',
       locked: 'Thanh toán để mở khóa',
-      active: 'Hoàn tất đặt hàng'
+      active: 'Hoàn tất đặt hàng',
+      sending: 'Đang gửi...'
     }
   }
 };

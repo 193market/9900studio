@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [view, setView] = useState<'landing' | 'order' | 'admin' | 'terms' | 'privacy'>('landing');
+  const [initialService, setInitialService] = useState('');
   const { t, language, setLanguage } = useLanguage();
 
   const languages = [
@@ -63,7 +64,12 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOrder = () => {
+  const handleOrder = (serviceName?: string | unknown) => {
+    if (typeof serviceName === 'string') {
+      setInitialService(serviceName);
+    } else {
+      setInitialService('');
+    }
     setView('order');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMenuOpen(false);
@@ -86,7 +92,7 @@ const App: React.FC = () => {
 
   // --- View Routing ---
   if (view === 'order') {
-    return <OrderWorkflow onBack={handleBackToLanding} />;
+    return <OrderWorkflow onBack={handleBackToLanding} initialService={initialService} />;
   }
 
   if (view === 'admin') {
@@ -162,7 +168,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="pl-4 border-l border-slate-200">
-              <Button size="sm" variant="primary" onClick={handleOrder} className="flex items-center gap-2 shadow-yellow-400/30">
+              <Button size="sm" variant="primary" onClick={() => handleOrder()} className="flex items-center gap-2 shadow-yellow-400/30">
                 {t('nav.cta')} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -212,7 +218,7 @@ const App: React.FC = () => {
               </button>
             ))}
             
-            <Button fullWidth onClick={handleOrder}>
+            <Button fullWidth onClick={() => handleOrder()}>
               {t('nav.cta')}
             </Button>
           </div>
@@ -244,7 +250,7 @@ const App: React.FC = () => {
               {t('hero.desc')}<span className="text-white font-bold border-b-2 border-yellow-400">{t('hero.desc_price')}</span>{t('hero.desc_suffix')}
             </p>
 
-            <Button size="lg" onClick={handleOrder} className="animate-pulse shadow-[0_0_40px_rgba(250,204,21,0.3)] px-10 py-5 text-xl rounded-full animate-in fade-in zoom-in duration-700 delay-300">
+            <Button size="lg" onClick={() => handleOrder()} className="animate-pulse shadow-[0_0_40px_rgba(250,204,21,0.3)] px-10 py-5 text-xl rounded-full animate-in fade-in zoom-in duration-700 delay-300">
               {t('hero.cta')}
             </Button>
             
@@ -279,7 +285,7 @@ const App: React.FC = () => {
                </p>
              </div>
              
-             <ServiceMenu />
+             <ServiceMenu onOrder={handleOrder} />
              
              <div className="mt-16 text-center">
                 <p className="text-slate-500 mb-6 text-sm">원하는 서비스가 없으신가요? 1:1 맞춤 제작도 가능합니다.</p>
@@ -322,7 +328,7 @@ const App: React.FC = () => {
              </div>
 
              <div className="flex flex-col items-center gap-2">
-                <Button size="lg" onClick={handleOrder} className="px-12 py-4 text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                <Button size="lg" onClick={() => handleOrder()} className="px-12 py-4 text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                   {t('pricing.cta')}
                 </Button>
                 <p className="text-slate-400 text-sm mt-4 flex items-center gap-2">
@@ -410,7 +416,7 @@ const App: React.FC = () => {
           fullWidth 
           size="lg" 
           className="shadow-2xl shadow-slate-900/40 flex items-center justify-between px-6 bg-yellow-400 text-slate-900 border-none"
-          onClick={handleOrder}
+          onClick={() => handleOrder()}
         >
           <span className="font-bold text-sm">{t('mobile_cta.prefix')}</span>
           <span className="flex items-center gap-1 font-black text-lg">
