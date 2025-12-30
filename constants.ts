@@ -152,6 +152,18 @@ export const INITIAL_SERVICE_ITEMS = [
     inputs: ["https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=150", "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150", "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=150"],
     result: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?w=600"
   },
+  {
+    id: 307, categoryKey: 'ecommerce', badge: "NEW",
+    title: "AI 아바타 생성", desc: "브랜드 페르소나에 맞는 가상 모델 아바타를 생성합니다.",
+    inputs: ["https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150", "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150", "https://images.unsplash.com/photo-1554151228-14d9def656ec?w=150"],
+    result: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600"
+  },
+  {
+    id: 308, categoryKey: 'ecommerce', badge: "HOT",
+    title: "AI 립싱크 (말하는 아바타)", desc: "텍스트나 음성을 입력하면 자연스럽게 말하는 홍보 영상을 제작합니다.",
+    inputs: ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150", "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150"],
+    result: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=600"
+  },
 
   // 4. 인테리어 / 부동산 중개인
   {

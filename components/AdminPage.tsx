@@ -69,9 +69,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
               className="w-full p-4 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 font-mono text-slate-900 placeholder:text-slate-400"
             />
             <Button fullWidth size="lg">접속하기</Button>
-            <div className="text-center mt-4">
-               <span className="text-xs text-slate-400">초기 비밀번호: admin</span>
-            </div>
             <button 
               type="button" 
               onClick={onBack}

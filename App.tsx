@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './components/Button';
 import { OrderWorkflow } from './components/OrderWorkflow';
 import { AdminPage } from './components/AdminPage';
@@ -27,6 +27,14 @@ const App: React.FC = () => {
   const [view, setView] = useState<'landing' | 'order' | 'admin' | 'terms' | 'privacy'>('landing');
   const [initialService, setInitialService] = useState('');
   const { t, language, setLanguage } = useLanguage();
+
+  // URL 경로 체크하여 관리자 페이지 진입 (/9900)
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/9900') {
+      setView('admin');
+    }
+  }, []);
 
   const languages = [
     { code: 'ko', label: '한국어' },
@@ -78,11 +86,10 @@ const App: React.FC = () => {
   const handleBackToLanding = () => {
     setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleAdminEnter = () => {
-    setView('admin');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // URL이 /9900으로 남아있을 수 있으므로 pushState로 정리 (선택사항)
+    if (window.location.pathname === '/9900') {
+      window.history.pushState({}, '', '/');
+    }
   };
 
   // 1:1 상담 링크 (카카오톡)
@@ -395,13 +402,7 @@ const App: React.FC = () => {
                 <button onClick={() => { setView('terms'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.terms')}</button>
                 <button onClick={() => { setView('privacy'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.privacy')}</button>
               </div>
-              {/* 관리자 페이지 진입 버튼 (Footer에 위치) */}
-              <button 
-                onClick={handleAdminEnter}
-                className="text-xs text-slate-700 hover:text-slate-500 flex items-center gap-1 transition-colors"
-              >
-                <Lock className="w-3 h-3" /> {t('footer.admin')}
-              </button>
+              {/* 관리자 페이지 진입 버튼 제거됨 (URL로만 접근) */}
             </div>
           </div>
           <p className="mt-8 text-center text-slate-600 text-xs">

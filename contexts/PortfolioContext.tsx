@@ -28,7 +28,8 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 
 const STORAGE_KEY_SERVICES = 'service_data_v1';
 const STORAGE_KEY_PW = 'admin_password_v1';
-const DEFAULT_PASSWORD = 'admin';
+// 보안을 위해 기본 비밀번호 변경
+const DEFAULT_PASSWORD = 'MRwol093462!';
 
 export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // 2. 서비스 데이터 (Main)
@@ -86,7 +87,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       setAdminPassword(DEFAULT_PASSWORD);
       localStorage.removeItem(STORAGE_KEY_SERVICES);
       localStorage.removeItem(STORAGE_KEY_PW);
-      alert('초기화되었습니다. 비밀번호도 "admin"으로 변경됩니다.');
+      alert('초기화되었습니다.');
     }
   };
 
