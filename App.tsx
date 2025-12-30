@@ -30,7 +30,8 @@ const App: React.FC = () => {
 
   // URL 경로 체크하여 관리자 페이지 진입 (/9900)
   useEffect(() => {
-    const path = window.location.pathname;
+    // pathname에서 마지막 슬래시 제거 후 비교
+    const path = window.location.pathname.replace(/\/$/, '');
     if (path === '/9900') {
       setView('admin');
     }
@@ -86,8 +87,8 @@ const App: React.FC = () => {
   const handleBackToLanding = () => {
     setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // URL이 /9900으로 남아있을 수 있으므로 pushState로 정리 (선택사항)
-    if (window.location.pathname === '/9900') {
+    // URL이 /9900으로 남아있을 수 있으므로 pushState로 정리
+    if (window.location.pathname.includes('/9900')) {
       window.history.pushState({}, '', '/');
     }
   };
