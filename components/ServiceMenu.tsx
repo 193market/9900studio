@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  ArrowRight, Sparkles, Zap, PlayCircle, AlertCircle
+  ArrowRight, Sparkles, Zap, PlayCircle, AlertCircle, ExternalLink
 } from 'lucide-react';
 
 interface ServiceMenuProps {
@@ -47,12 +47,11 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     if (driveId) {
       return { 
         type: 'drive', 
-        url: `https://drive.google.com/file/d/${driveId}/preview` 
+        url: `https://drive.google.com/file/d/${driveId}/preview`,
+        originalUrl: `https://drive.google.com/file/d/${driveId}/view` 
       };
     }
     
-    // ID를 못 찾았지만 드라이브 링크인 경우 -> 렌더링 시도하되 에러 가능성 높음
-    // 여기서는 사용자 경험을 위해 raw url로 시도하지 않고 에러 처리
     return { type: 'error', message: 'Invalid Drive Link' }; 
   }
 
@@ -65,13 +64,14 @@ const getVideoEmbedInfo = (inputUrl: string) => {
       return {
         type: 'youtube',
         // Autoplay, Mute, Loop, No Controls to mimic background video
-        url: `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&modestbranding=1`
+        url: `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&modestbranding=1`,
+        originalUrl: `https://www.youtube.com/watch?v=${ytId}`
       };
     }
   }
 
   // 3. Direct File (Default)
-  return { type: 'video', url: url };
+  return { type: 'video', url: url, originalUrl: url };
 };
 
 export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
@@ -94,26 +94,27 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   );
 };
 
-// 개별 서비스 카드 컴포넌트 (비디오 자동 전환 로직 분리)
+// 개별 서비스 카드 컴포넌트
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false); // 호버 상태 관리
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // 비디오가 여러 개일 경우 5초마다 자동 회전 (영상 재생 시간 고려하여 조금 길게)
+  // 비디오가 여러 개일 경우 5초마다 자동 회전 (마우스 오버 시 정지)
   useEffect(() => {
-    if (item.results.length <= 1) return;
+    if (item.results.length <= 1 || isHovered) return;
 
     const interval = setInterval(() => {
       setCurrentVideoIndex((prev) => (prev + 1) % item.results.length);
     }, 5000); // 5초마다 전환
 
     return () => clearInterval(interval);
-  }, [item.results.length]);
+  }, [item.results.length, isHovered]);
 
   // 활성화된 비디오만 재생, 나머지는 일시정지 (iframe은 제어 불가하므로 skip)
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
-      if (!video) return; // iframe이거나 ref가 없으면 skip
+      if (!video) return; 
       
       if (idx === currentVideoIndex) {
         video.currentTime = 0;
@@ -168,15 +169,20 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
          <div className="bg-slate-50/80 rounded-3xl p-3 border border-slate-100 h-full flex flex-col relative">
             
             {/* Result (Main) - Video Carousel */}
-            <div className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black">
+            <div 
+              className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
                 {item.results.map((videoSrc, idx) => {
                   const embedInfo = getVideoEmbedInfo(videoSrc);
-                  
+                  const isActive = idx === currentVideoIndex;
+
                   // Handle Error
                   if (embedInfo.type === 'error') {
                      return (
                       <div key={idx} className={`absolute inset-0 w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs transition-opacity duration-1000 ${
-                          idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                          isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         }`}>
                           <div className="text-center p-2">
                              <AlertCircle className="w-6 h-6 mx-auto mb-1 text-slate-300" />
@@ -189,16 +195,29 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                   // External Video (Drive, YouTube) -> iframe
                   if (embedInfo.type !== 'video') {
                     return (
-                      <iframe
-                        key={idx}
-                        src={embedInfo.url}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                          idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                        }`}
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        loading="eager"
-                        // iframe은 ref에 할당하지 않음 (play() 호출 불가)
-                      />
+                      <React.Fragment key={idx}>
+                        <iframe
+                          src={embedInfo.url}
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                            isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                          }`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          loading="lazy"
+                        />
+                        {/* 원본 바로가기 버튼 (오류 시 확인용) */}
+                        {isActive && (
+                           <a 
+                             href={embedInfo.originalUrl} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full z-20 transition-colors pointer-events-auto"
+                             title="새 창에서 원본 열기"
+                             onClick={(e) => e.stopPropagation()}
+                           >
+                              <ExternalLink className="w-3 h-3" />
+                           </a>
+                        )}
+                      </React.Fragment>
                     );
                   }
 
@@ -209,7 +228,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                       ref={el => videoRefs.current[idx] = el}
                       src={embedInfo.url}
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                        idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
                       }`}
                       muted
                       loop

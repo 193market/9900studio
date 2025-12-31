@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder, ExternalLink } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -45,7 +45,8 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     if (driveId) {
       return { 
         type: 'drive', 
-        url: `https://drive.google.com/file/d/${driveId}/preview` 
+        url: `https://drive.google.com/file/d/${driveId}/preview`,
+        originalUrl: `https://drive.google.com/file/d/${driveId}/view`
       };
     }
     
@@ -61,13 +62,14 @@ const getVideoEmbedInfo = (inputUrl: string) => {
       ytId = matchYt[1];
       return {
         type: 'youtube',
-        url: `https://www.youtube.com/embed/${ytId}`
+        url: `https://www.youtube.com/embed/${ytId}`,
+        originalUrl: `https://www.youtube.com/watch?v=${ytId}`
       };
     }
   }
 
   // 3. Direct File (Default)
-  return { type: 'video', url: url };
+  return { type: 'video', url: url, originalUrl: url };
 };
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
@@ -206,10 +208,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                 </div>
                 <div className="bg-blue-50 text-blue-800 text-xs px-4 py-3 rounded-lg border border-blue-100 flex items-start gap-2 max-w-md">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>
-                        <b>구글 드라이브 권한 체크:</b><br/>
-                        링크가 '제한됨'이면 재생되지 않습니다. 반드시 <u>'링크가 있는 모든 사용자에게 공개'</u>로 설정해주세요.
-                    </span>
+                    <div className="flex flex-col gap-1">
+                        <span>
+                            <b>권한 체크:</b> 구글 드라이브 영상은 <u>'링크가 있는 모든 사용자에게 공개'</u>여야 합니다.
+                        </span>
+                        <span className="text-blue-600 border-t border-blue-200 pt-1 mt-1">
+                            <b>"처리 중..." 오류:</b> 방금 올린 영상은 구글 서버 처리가 끝날 때까지 기다려야 합니다.
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -302,12 +308,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                                 </p>
                                              </div>
                                           ) : embedInfo.type === 'drive' || embedInfo.type === 'youtube' ? (
-                                             <iframe 
-                                               src={embedInfo.url} 
-                                               className="w-full h-full object-cover" 
-                                               allowFullScreen 
-                                               title={`Video ${idx}`}
-                                             />
+                                             <>
+                                                <iframe 
+                                                  src={embedInfo.url} 
+                                                  className="w-full h-full object-cover" 
+                                                  allowFullScreen 
+                                                  title={`Video ${idx}`}
+                                                />
+                                                {/* 원본 바로가기 버튼 (디버깅용) */}
+                                                <a 
+                                                   href={embedInfo.originalUrl} 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer"
+                                                   className="absolute top-1 left-1 bg-white/80 hover:bg-white text-slate-700 p-1 rounded-md z-20 transition-colors"
+                                                   title="새 창에서 원본 열기"
+                                                >
+                                                    <ExternalLink className="w-3 h-3" />
+                                                </a>
+                                             </>
                                           ) : (
                                              <video src={embedInfo.url} className="w-full h-full object-cover" muted />
                                           )}
