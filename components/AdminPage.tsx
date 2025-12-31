@@ -1,19 +1,31 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼
-const getVideoEmbedInfo = (url: string) => {
+// 영상 링크 타입 판별 및 변환 헬퍼 (강화된 버전)
+const getVideoEmbedInfo = (inputUrl: string) => {
+  let url = inputUrl.trim();
+
+  // 0. 만약 사용자가 <iframe src="..."> 코드를 통째로 넣은 경우 src만 추출
+  if (url.startsWith('<iframe') && url.includes('src="')) {
+    const srcMatch = url.match(/src="([^"]+)"/);
+    if (srcMatch && srcMatch[1]) {
+      url = srcMatch[1];
+    }
+  }
+
   // 1. Google Drive
+  // drive.google.com이 포함되어 있으면 무조건 drive 타입으로 처리 (video 태그 사용 방지)
   if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
     let driveId = '';
-    const matchPath = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    const matchQuery = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    // /d/ID 또는 id=ID 패턴 찾기 (더 관대하게)
+    const matchPath = url.match(/\/d\/([^/?#]+)/);
+    const matchQuery = url.match(/[?&]id=([^&]+)/);
     
     if (matchPath && matchPath[1]) driveId = matchPath[1];
     else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
@@ -24,6 +36,8 @@ const getVideoEmbedInfo = (url: string) => {
         url: `https://drive.google.com/file/d/${driveId}/preview` 
       };
     }
+    // ID 추출 실패하더라도 iframe으로 시도 (video 태그로 가면 무한 로딩됨)
+    return { type: 'drive', url: url }; 
   }
 
   // 2. YouTube
@@ -39,7 +53,8 @@ const getVideoEmbedInfo = (url: string) => {
     }
   }
 
-  // 3. Direct File (Default)
+  // 3. Direct File (Default) - .mp4 등으로 끝나는지 체크하면 좋지만, 
+  // 그 외에는 모두 video 태그로 시도.
   return { type: 'video', url: url };
 };
 
@@ -91,7 +106,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
   const handleUrlSubmit = (itemId: number) => {
     const url = urlInputs[itemId];
     if (url) {
-        addServiceVideoUrl(itemId, url);
+        addServiceVideoUrl(itemId, url.trim());
         setUrlInputs(prev => ({...prev, [itemId]: ''})); // 초기화
     }
   };
@@ -170,11 +185,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
         {/* Tab Content: Services */}
         {activeTab === 'services' && (
           <>
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">서비스 메뉴 수정</h2>
-                <p className="text-sm text-slate-500 bg-white px-3 py-1 rounded border border-slate-200 shadow-sm">
-                    영상 서비스 목록
-                </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-900">서비스 메뉴 수정</h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                        메인 페이지의 포트폴리오 영상을 관리합니다.
+                    </p>
+                </div>
+                <div className="bg-blue-50 text-blue-800 text-xs px-4 py-3 rounded-lg border border-blue-100 flex items-start gap-2 max-w-md">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                        <b>구글 드라이브 링크 주의사항:</b><br/>
+                        반드시 영상 파일의 권한을 <u>'링크가 있는 모든 사용자에게 공개'</u>로 설정해야 사이트에서 보입니다. (비공개 영상은 로딩되지 않습니다)
+                    </span>
+                </div>
             </div>
 
             <div className="space-y-8">
@@ -247,7 +271,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                       <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
                                   </label>
                                   <span className="text-[10px] text-slate-400">
-                                    * 5초마다 자동 슬라이드 (개수 제한 없음)
+                                    * 5초마다 자동 슬라이드
                                   </span>
                               </div>
                               
@@ -257,12 +281,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                     
                                     return (
                                       <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
+                                          {/* 드라이브나 유튜브는 iframe, 나머지는 video */}
                                           {type !== 'video' ? (
                                              <iframe 
                                                src={url} 
                                                className="w-full h-full object-cover" 
                                                allowFullScreen 
-                                               title="External Video"
+                                               title={`Video ${idx}`}
                                              />
                                           ) : (
                                              <video src={url} className="w-full h-full object-cover" muted />
@@ -274,7 +299,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                           >
                                             <Trash2 className="w-3 h-3" />
                                           </button>
-                                          <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                          <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold z-10">
                                             {idx + 1}
                                           </span>
                                       </div>

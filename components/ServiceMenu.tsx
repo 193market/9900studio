@@ -9,13 +9,25 @@ interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼 (중복 사용을 피하기 위해 util로 분리하는 것이 좋으나 파일 최소화를 위해 포함)
-const getVideoEmbedInfo = (url: string) => {
+// 영상 링크 타입 판별 및 변환 헬퍼 (강화됨)
+const getVideoEmbedInfo = (inputUrl: string) => {
+  let url = inputUrl.trim();
+
+  // 0. 만약 사용자가 <iframe src="..."> 코드를 통째로 넣은 경우 src만 추출
+  if (url.startsWith('<iframe') && url.includes('src="')) {
+    const srcMatch = url.match(/src="([^"]+)"/);
+    if (srcMatch && srcMatch[1]) {
+      url = srcMatch[1];
+    }
+  }
+
   // 1. Google Drive
+  // drive.google.com이 포함되어 있으면 무조건 drive 타입으로 처리 (video 태그 사용 방지)
   if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
     let driveId = '';
-    const matchPath = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    const matchQuery = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    // /d/ID 또는 id=ID 패턴 찾기 (더 관대하게)
+    const matchPath = url.match(/\/d\/([^/?#]+)/);
+    const matchQuery = url.match(/[?&]id=([^&]+)/);
     
     if (matchPath && matchPath[1]) driveId = matchPath[1];
     else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
@@ -26,6 +38,8 @@ const getVideoEmbedInfo = (url: string) => {
         url: `https://drive.google.com/file/d/${driveId}/preview` 
       };
     }
+    // ID 추출 실패하더라도 iframe으로 시도 (video 태그로 가면 무한 로딩됨)
+    return { type: 'drive', url: url }; 
   }
 
   // 2. YouTube
