@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-// 브라우저 환경 등에서 process가 정의되지 않았을 때를 대비한 안전한 접근
-const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
-const ai = new GoogleGenAI({ apiKey });
+// 직접 process.env.API_KEY를 사용하도록 수정
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // 서비스 아이템 인터페이스 (Context 의존성 제거를 위해 내부 정의)
 interface ServiceItemPartial {
