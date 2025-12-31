@@ -4,10 +4,24 @@ import { GoogleGenAI } from "@google/genai";
 const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
 const ai = new GoogleGenAI({ apiKey });
 
-// --- 시스템 프롬프트 (사이트 정보) ---
-const SYSTEM_INSTRUCTION = `
+// 서비스 아이템 인터페이스 (Context 의존성 제거를 위해 내부 정의)
+interface ServiceItemPartial {
+  title: string;
+  desc: string;
+  badge?: string;
+}
+
+// --- 동적 시스템 프롬프트 생성 함수 ---
+const getSystemInstruction = (services: ServiceItemPartial[]) => {
+  // 서비스 목록을 텍스트로 변환
+  const servicesListText = services.map((item, index) => {
+    return `${index + 1}. ${item.title} ${item.badge ? `[${item.badge}]` : ''}
+   - 설명: ${item.desc}`;
+  }).join('\n');
+
+  return `
 당신은 '9900Studio'의 AI 전문 상담원입니다. 
-방문자에게 친절하고 전문적인 태도로 응대하며, 아래 정보를 바탕으로 질문에 답변하세요.
+방문자에게 친절하고 전문적인 태도로 응대하며, 아래 **실시간 업데이트된 서비스 정보**를 바탕으로 질문에 답변하세요.
 한국어로 답변하세요.
 
 [서비스 핵심 정보]
@@ -18,16 +32,8 @@ const SYSTEM_INSTRUCTION = `
 - 연락처: 010-7320-5565 / inifin@naver.com
 - 위치: 서울 강서구 화곡로 129 305호
 
-[제작 가능한 영상 종류 (서비스 메뉴)]
-1. 바이럴 훅 (Viral Hook): 3초 안에 시선을 사로잡는 도입부 영상
-2. 신년 스페셜: 새해 인사 및 프로모션용
-3. 언박싱 (Unboxing): 제품 개봉 및 리뷰 영상
-4. 구매 유도 스킷: 짧은 상황극으로 구매 욕구 자극
-5. POV 시점 영상: 사용자 1인칭 시점 체험 영상
-6. 데일리룩 / OOTD: 패션 스타일링 숏폼
-7. ASMR: 시각/청각 자극 제품 영상
-8. 코디 체인지: 음악에 맞춰 의상이 바뀌는 챌린지 영상
-9. 제품 비주얼 이펙트: 화려한 효과가 들어간 고퀄리티 연출
+[현재 제작 가능한 영상 종류 (실시간 목록)]
+${servicesListText}
 
 [주문 프로세스]
 1. 사이트에서 '영상 제작 신청' 또는 '스튜디오 시작하기' 버튼 클릭
@@ -39,16 +45,18 @@ const SYSTEM_INSTRUCTION = `
 [답변 가이드라인]
 - 사용자가 영상 제작을 원하면 '주문하기' 페이지로 안내하거나 우측 상단의 버튼을 누르라고 안내하세요.
 - 가격이나 퀄리티를 의심하면 "9,900원에 기획부터 편집까지 AI가 처리하여 비용을 낮췄음"을 강조하세요.
+- 목록에 없는 서비스를 문의하면, "현재 목록에는 없지만 1:1 맞춤 제작 문의를 통해 가능합니다"라고 안내하세요.
 - 인사를 할 때는 "안녕하세요! 9,900원 AI 영상 제작소입니다. 무엇을 도와드릴까요?"라고 시작하세요.
-- 너무 긴 답변보다는 핵심만 간결하게(3문장 이내) 답변하는 것을 선호합니다.
+- 답변은 3문장 이내로 간결하게 작성하세요.
 `;
+};
 
-export const createChatSession = () => {
+export const createChatSession = (services: ServiceItemPartial[]) => {
   return ai.chats.create({
     model: 'gemini-3-flash-preview',
     config: {
       temperature: 0.7,
-      systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: getSystemInstruction(services),
     }
   });
 };

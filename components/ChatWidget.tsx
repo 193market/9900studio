@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createChatSession } from '../services/geminiService';
+import { usePortfolio } from '../contexts/PortfolioContext'; // 포트폴리오 데이터 가져오기
 import { MessageCircle, X, Send, Loader2, Bot, User } from 'lucide-react';
 import { Button } from './Button';
 
@@ -15,15 +16,23 @@ export const ChatWidget: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
   const chatSessionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 채팅 세션 초기화
+  // 전역 상태에서 최신 서비스 목록 가져오기
+  const { serviceItems } = usePortfolio();
+
+  // 채팅 세션 초기화 (serviceItems가 변경되면 세션도 업데이트된 정보로 다시 생성)
   useEffect(() => {
-    if (!chatSessionRef.current) {
-      chatSessionRef.current = createChatSession();
-    }
-  }, []);
+    // 채팅 세션을 최신 데이터로 생성
+    chatSessionRef.current = createChatSession(serviceItems);
+    
+    // 만약 채팅창이 열려있고 대화 내역이 있다면, 
+    // 문맥 유지를 위해 시스템 프롬프트만 몰래 업데이트하는 것이 좋지만,
+    // Gemini SDK 구조상 새 세션을 만드는 것이 가장 확실함.
+    // 사용자가 느끼기에 끊김이 없도록 ref만 교체.
+  }, [serviceItems]);
 
   // 스크롤 자동 이동
   useEffect(() => {
@@ -41,7 +50,7 @@ export const ChatWidget: React.FC = () => {
 
     try {
       if (!chatSessionRef.current) {
-        chatSessionRef.current = createChatSession();
+        chatSessionRef.current = createChatSession(serviceItems);
       }
       
       const result = await chatSessionRef.current.sendMessage({ message: userMsg });
@@ -73,7 +82,7 @@ export const ChatWidget: React.FC = () => {
                 <h3 className="font-bold text-sm">AI 상담원</h3>
                 <p className="text-xs text-slate-400 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                  운영중 (빠른 답변)
+                  실시간 서비스 정보 연동됨
                 </p>
               </div>
             </div>
