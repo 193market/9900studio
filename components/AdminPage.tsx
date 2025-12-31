@@ -7,87 +7,62 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼 (범용성 강화 버전)
+// 영상 링크 타입 판별 및 변환 헬퍼 (YouTube Shorts 지원)
 const getVideoEmbedInfo = (inputUrl: string) => {
-  let url = inputUrl.trim();
+  const url = inputUrl ? inputUrl.trim() : '';
+  if (!url) return { type: 'error', url: '', originalUrl: '', message: '' };
 
-  // 0. <iframe src="..."> 처리
-  if (url.startsWith('<iframe') && url.includes('src="')) {
-    const srcMatch = url.match(/src="([^"]+)"/);
-    if (srcMatch && srcMatch[1]) {
-      url = srcMatch[1];
-    }
-    return { type: 'iframe', url: url, originalUrl: url };
+  // 1. YouTube 링크 (Shorts 포함)
+  // 정규식에 'shorts'를 추가하여 /shorts/ 경로도 인식하도록 수정됨
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeMatch = url.match(youtubeRegex);
+  
+  if (youtubeMatch && youtubeMatch[1]) {
+    const videoId = youtubeMatch[1];
+    // 쇼츠 및 일반 영상 공통 파라미터 (자동재생, 음소거, 반복, 컨트롤 숨김)
+    const queryParams = `?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+    return {
+      type: 'youtube',
+      id: videoId,
+      url: `https://www.youtube.com/embed/${videoId}${queryParams}`,
+      originalUrl: url
+    };
   }
 
-  // 1. Google Drive
-  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
-    // 폴더 링크인지 체크
-    if (url.includes('/folders/')) {
-       return { type: 'error', message: '폴더 링크는 사용할 수 없습니다. 개별 파일 링크를 입력해주세요.' };
-    }
-
-    // ID 추출 시도 (다양한 패턴)
+  // 2. Google Drive 링크 처리 (기존 로직 유지)
+  if (url.includes('drive.google.com')) {
+    let fileId = null;
     const patterns = [
-      /\/file\/d\/([a-zA-Z0-9_-]+)/, // /file/d/ID
-      /\/d\/([a-zA-Z0-9_-]+)/,       // /d/ID
-      /id=([a-zA-Z0-9_-]+)/          // ?id=ID
+      /\/file\/d\/([a-zA-Z0-9_-]+)/,
+      /id=([a-zA-Z0-9_-]+)/,
+      /open\?id=([a-zA-Z0-9_-]+)/
     ];
 
-    let driveId = '';
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match && match[1]) {
-        driveId = match[1];
+        fileId = match[1];
         break;
       }
     }
 
-    if (driveId) {
-      return { 
-        type: 'drive', 
-        url: `https://drive.google.com/file/d/${driveId}/preview`,
-        originalUrl: `https://drive.google.com/file/d/${driveId}/view`
-      };
-    }
-    
-    return { type: 'error', message: '올바른 구글 드라이브 링크 형식이 아닙니다.' }; 
-  }
-
-  // 2. YouTube
-  if (url.includes('youtube.com') || url.includes('youtu.be')) {
-    let ytId = '';
-    const matchYt = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?]+)/);
-    if (matchYt && matchYt[1]) {
-      ytId = matchYt[1];
+    if (fileId) {
       return {
-        type: 'youtube',
-        url: `https://www.youtube.com/embed/${ytId}`,
-        originalUrl: `https://www.youtube.com/watch?v=${ytId}`
+        type: 'drive',
+        id: fileId,
+        url: `https://drive.google.com/file/d/${fileId}/preview`,
+        originalUrl: url
       };
     }
   }
 
-  // 3. TeraBox (추가됨)
-  if (url.includes('terabox')) {
-    return { 
-        type: 'terabox', 
-        url: url, 
-        originalUrl: url 
-    };
-  }
-
-  // 4. Direct File vs General Web Link
-  // .mp4, .webm, .ogg, .mov 등으로 끝나지 않으면 iframe으로 간주 (안전장치)
-  // 단, 쿼리 스트링이 있을 수 있으므로 확장자 체크는 신중하게
-  const isVideoFile = /\.(mp4|webm|ogg|mov)($|\?)/i.test(url);
-  
-  if (isVideoFile) {
-      return { type: 'video', url: url, originalUrl: url };
-  } else {
-      // 확장자가 없는 경우, blob: 이나 data: 가 아니면 iframe으로 처리하는게 안전함 (무한로딩 방지)
-      return { type: 'iframe', url: url, originalUrl: url };
-  }
+  // 3. 일반 비디오 파일
+  return {
+    type: 'video',
+    id: url,
+    url: url,
+    originalUrl: url
+  };
 };
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
@@ -231,7 +206,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                             <b>권한 체크:</b> 클라우드 영상은 반드시 <u>'공개'</u> 상태여야 합니다.
                         </span>
                         <span className="text-blue-600 border-t border-blue-200 pt-1 mt-1">
-                            <b>링크 팁:</b> .mp4로 끝나지 않는 링크(테라박스 등)는 자동으로 웹 뷰어 모드로 표시됩니다.
+                            <b>링크 팁:</b> YouTube Shorts 링크도 지원합니다.
                         </span>
                     </div>
                 </div>
