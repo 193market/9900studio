@@ -7,16 +7,40 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-// 구글 드라이브 링크 변환 헬퍼 함수
-const getGoogleDriveEmbedUrl = (url: string) => {
-  if (url.includes('drive.google.com')) {
-    // /d/ID 값 추출
-    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (idMatch && idMatch[1]) {
-      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+// 영상 링크 타입 판별 및 변환 헬퍼
+const getVideoEmbedInfo = (url: string) => {
+  // 1. Google Drive
+  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    let driveId = '';
+    const matchPath = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    const matchQuery = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    
+    if (matchPath && matchPath[1]) driveId = matchPath[1];
+    else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
+
+    if (driveId) {
+      return { 
+        type: 'drive', 
+        url: `https://drive.google.com/file/d/${driveId}/preview` 
+      };
     }
   }
-  return null;
+
+  // 2. YouTube
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    let ytId = '';
+    const matchYt = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?]+)/);
+    if (matchYt && matchYt[1]) {
+      ytId = matchYt[1];
+      return {
+        type: 'youtube',
+        url: `https://www.youtube.com/embed/${ytId}`
+      };
+    }
+  }
+
+  // 3. Direct File (Default)
+  return { type: 'video', url: url };
 };
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
@@ -229,18 +253,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                               
                               <div className="grid grid-cols-4 gap-2">
                                   {item.results.map((videoSrc, idx) => {
-                                    const driveUrl = getGoogleDriveEmbedUrl(videoSrc);
+                                    const { type, url } = getVideoEmbedInfo(videoSrc);
+                                    
                                     return (
                                       <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
-                                          {driveUrl ? (
+                                          {type !== 'video' ? (
                                              <iframe 
-                                               src={driveUrl} 
+                                               src={url} 
                                                className="w-full h-full object-cover" 
                                                allowFullScreen 
-                                               title="Google Drive Video"
+                                               title="External Video"
                                              />
                                           ) : (
-                                             <video src={videoSrc} className="w-full h-full object-cover" muted />
+                                             <video src={url} className="w-full h-full object-cover" muted />
                                           )}
                                           
                                           <button 

@@ -9,15 +9,41 @@ interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
 }
 
-// 구글 드라이브 링크 변환 헬퍼 (중복 사용을 피하기 위해 util로 분리하는 것이 좋으나 파일 최소화를 위해 포함)
-const getGoogleDriveEmbedUrl = (url: string) => {
-  if (url.includes('drive.google.com')) {
-    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (idMatch && idMatch[1]) {
-      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+// 영상 링크 타입 판별 및 변환 헬퍼 (중복 사용을 피하기 위해 util로 분리하는 것이 좋으나 파일 최소화를 위해 포함)
+const getVideoEmbedInfo = (url: string) => {
+  // 1. Google Drive
+  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    let driveId = '';
+    const matchPath = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    const matchQuery = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    
+    if (matchPath && matchPath[1]) driveId = matchPath[1];
+    else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
+
+    if (driveId) {
+      return { 
+        type: 'drive', 
+        url: `https://drive.google.com/file/d/${driveId}/preview` 
+      };
     }
   }
-  return null;
+
+  // 2. YouTube
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    let ytId = '';
+    const matchYt = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?]+)/);
+    if (matchYt && matchYt[1]) {
+      ytId = matchYt[1];
+      return {
+        type: 'youtube',
+        // Autoplay, Mute, Loop, No Controls to mimic background video
+        url: `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&modestbranding=1`
+      };
+    }
+  }
+
+  // 3. Direct File (Default)
+  return { type: 'video', url: url };
 };
 
 export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
@@ -116,14 +142,14 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
             {/* Result (Main) - Video Carousel */}
             <div className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black">
                 {item.results.map((videoSrc, idx) => {
-                  const driveUrl = getGoogleDriveEmbedUrl(videoSrc);
+                  const { type, url } = getVideoEmbedInfo(videoSrc);
                   
-                  // Google Drive 링크인 경우 iframe 렌더링
-                  if (driveUrl) {
+                  // External Video (Drive, YouTube) -> iframe
+                  if (type !== 'video') {
                     return (
                       <iframe
                         key={idx}
-                        src={driveUrl}
+                        src={url}
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                           idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         }`}
@@ -133,12 +159,12 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                     );
                   }
 
-                  // 일반 비디오 링크
+                  // Direct Video File (.mp4 etc)
                   return (
                     <video
                       key={idx}
                       ref={el => videoRefs.current[idx] = el}
-                      src={videoSrc}
+                      src={url}
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                         idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                       }`}
