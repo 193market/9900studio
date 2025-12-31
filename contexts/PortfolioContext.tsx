@@ -25,8 +25,8 @@ interface PortfolioContextType {
   
   // 서비스 관리용 함수
   updateServiceItem: (id: number, field: keyof ServiceItem, value: any) => void;
-  // 비디오 파일 추가
-  addServiceVideo: (id: number, file: File) => Promise<void>;
+  // 비디오 파일들 추가 (다중 업로드)
+  addServiceVideos: (id: number, files: FileList) => Promise<void>;
   // 비디오 URL 직접 추가
   addServiceVideoUrl: (id: number, url: string) => void;
   // 비디오 삭제
@@ -80,7 +80,11 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(serviceItems));
+    try {
+      localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(serviceItems));
+    } catch (e) {
+      alert("브라우저 저장소 용량이 가득 찼습니다. 일부 영상을 URL로 변경하거나 삭제해주세요.");
+    }
   }, [serviceItems]);
 
   useEffect(() => {
@@ -94,27 +98,47 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     ));
   };
 
-  const addServiceVideo = (id: number, file: File): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      // 5MB 제한 체크 (LocalStorage 한계)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("브라우저 저장소 제한으로 인해 5MB 이하의 영상만 업로드 가능합니다.\n용량이 큰 영상은 URL로 등록해주세요.");
-        reject(new Error("File too large"));
-        return;
+  // 다중 파일 업로드 처리
+  const addServiceVideos = async (id: number, files: FileList): Promise<void> => {
+    const newVideos: string[] = [];
+    let skippedCount = 0;
+
+    const readFile = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        if (file.size > 5 * 1024 * 1024) {
+          skippedCount++;
+          resolve(''); // Skip large files
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const promises = Array.from(files).map(readFile);
+    
+    try {
+      const results = await Promise.all(promises);
+      results.forEach(res => {
+        if (res) newVideos.push(res);
+      });
+
+      if (skippedCount > 0) {
+        alert(`${skippedCount}개의 파일이 5MB를 초과하여 제외되었습니다.`);
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
+      if (newVideos.length > 0) {
         setServiceItems(prev => prev.map(item => {
           if (item.id !== id) return item;
-          return { ...item, results: [...item.results, base64String] };
+          return { ...item, results: [...item.results, ...newVideos] };
         }));
-        resolve();
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+      }
+    } catch (error) {
+      console.error("File read error:", error);
+      alert("파일을 읽는 중 오류가 발생했습니다.");
+    }
   };
 
   const addServiceVideoUrl = (id: number, url: string) => {
@@ -153,7 +177,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       serviceItems,
       adminPassword, 
       updateServiceItem,
-      addServiceVideo,
+      addServiceVideos,
       addServiceVideoUrl,
       removeServiceVideo,
       updatePassword, 

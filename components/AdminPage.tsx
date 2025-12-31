@@ -21,7 +21,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
   const { 
     serviceItems, adminPassword, 
-    updateServiceItem, addServiceVideo, addServiceVideoUrl, removeServiceVideo,
+    updateServiceItem, addServiceVideos, addServiceVideoUrl, removeServiceVideo,
     updatePassword, resetData 
   } = usePortfolio();
 
@@ -211,11 +211,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                       <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
                                   </label>
                                   <span className="text-[10px] text-slate-400">
-                                    * 5초마다 자동 슬라이드
+                                    * 5초마다 자동 슬라이드 (개수 제한 없음)
                                   </span>
                               </div>
                               
-                              <div className="grid grid-cols-3 gap-2">
+                              <div className="grid grid-cols-4 gap-2">
                                   {item.results.map((videoSrc, idx) => (
                                     <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
                                         <video src={videoSrc} className="w-full h-full object-cover" muted />
@@ -234,17 +234,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
                               {/* Add Video Actions */}
                               <div className="grid grid-cols-2 gap-2 mt-2">
-                                  {/* Option 1: File Upload */}
+                                  {/* Option 1: File Upload (Multiple) */}
                                   <label className="p-3 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
                                       <Upload className="w-4 h-4 text-slate-400 mb-1" />
-                                      <span className="text-[10px] text-slate-500 font-bold">파일 업로드</span>
-                                      <span className="text-[9px] text-slate-400">(5MB 이하)</span>
+                                      <span className="text-[10px] text-slate-500 font-bold">파일 다중 업로드</span>
+                                      <span className="text-[9px] text-slate-400">(여러개 선택 가능)</span>
                                       <input 
                                           type="file" 
                                           accept="video/*"
                                           className="hidden"
+                                          multiple // Allow multiple files
                                           onChange={(e) => {
-                                              if(e.target.files?.[0]) addServiceVideo(item.id, e.target.files[0]);
+                                              if(e.target.files) addServiceVideos(item.id, e.target.files);
                                           }}
                                       />
                                   </label>
@@ -276,7 +277,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                       </div>
                     </div>
 
-                    {/* AI 제작 가이드 섹션 (새로 추가됨) */}
+                    {/* AI 제작 가이드 섹션 */}
                     <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                        <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                           <Bot className="w-4 h-4 text-slate-500" /> 
