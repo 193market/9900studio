@@ -1,7 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
-// 직접 process.env.API_KEY를 사용하도록 수정
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// API 키 직접 설정 (요청사항 반영)
+const API_KEY = 'AIzaSyDbTRF-VTPya6PctBtrksXoxC5LEMQ_Sjc';
+
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 // 서비스 아이템 인터페이스 (Context 의존성 제거를 위해 내부 정의)
 interface ServiceItemPartial {
