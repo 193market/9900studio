@@ -7,6 +7,18 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
+// 구글 드라이브 링크 변환 헬퍼 함수
+const getGoogleDriveEmbedUrl = (url: string) => {
+  if (url.includes('drive.google.com')) {
+    // /d/ID 값 추출
+    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+  }
+  return null;
+};
+
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
@@ -216,20 +228,33 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                               </div>
                               
                               <div className="grid grid-cols-4 gap-2">
-                                  {item.results.map((videoSrc, idx) => (
-                                    <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
-                                        <video src={videoSrc} className="w-full h-full object-cover" muted />
-                                        <button 
-                                          onClick={() => removeServiceVideo(item.id, idx)}
-                                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </button>
-                                        <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
-                                          {idx + 1}
-                                        </span>
-                                    </div>
-                                  ))}
+                                  {item.results.map((videoSrc, idx) => {
+                                    const driveUrl = getGoogleDriveEmbedUrl(videoSrc);
+                                    return (
+                                      <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
+                                          {driveUrl ? (
+                                             <iframe 
+                                               src={driveUrl} 
+                                               className="w-full h-full object-cover" 
+                                               allowFullScreen 
+                                               title="Google Drive Video"
+                                             />
+                                          ) : (
+                                             <video src={videoSrc} className="w-full h-full object-cover" muted />
+                                          )}
+                                          
+                                          <button 
+                                            onClick={() => removeServiceVideo(item.id, idx)}
+                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                                          >
+                                            <Trash2 className="w-3 h-3" />
+                                          </button>
+                                          <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                            {idx + 1}
+                                          </span>
+                                      </div>
+                                    );
+                                  })}
                               </div>
 
                               {/* Add Video Actions */}

@@ -9,6 +9,17 @@ interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
 }
 
+// 구글 드라이브 링크 변환 헬퍼 (중복 사용을 피하기 위해 util로 분리하는 것이 좋으나 파일 최소화를 위해 포함)
+const getGoogleDriveEmbedUrl = (url: string) => {
+  if (url.includes('drive.google.com')) {
+    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+  }
+  return null;
+};
+
 export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   const { serviceItems } = usePortfolio(); 
 
@@ -45,10 +56,11 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
     return () => clearInterval(interval);
   }, [item.results.length]);
 
-  // 활성화된 비디오만 재생, 나머지는 일시정지
+  // 활성화된 비디오만 재생, 나머지는 일시정지 (iframe은 제어 불가하므로 skip)
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
-      if (!video) return;
+      if (!video) return; // iframe이거나 ref가 없으면 skip
+      
       if (idx === currentVideoIndex) {
         video.currentTime = 0;
         const playPromise = video.play();
@@ -103,21 +115,41 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
             
             {/* Result (Main) - Video Carousel */}
             <div className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black">
-                {item.results.map((videoSrc, idx) => (
-                  <video
-                    key={idx}
-                    ref={el => videoRefs.current[idx] = el}
-                    src={videoSrc}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                      idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                    }`}
-                    muted
-                    loop
-                    playsInline
-                    // 첫 번째 영상은 초기 로드 시 자동 재생 시도
-                    autoPlay={idx === 0} 
-                  />
-                ))}
+                {item.results.map((videoSrc, idx) => {
+                  const driveUrl = getGoogleDriveEmbedUrl(videoSrc);
+                  
+                  // Google Drive 링크인 경우 iframe 렌더링
+                  if (driveUrl) {
+                    return (
+                      <iframe
+                        key={idx}
+                        src={driveUrl}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                          idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        }`}
+                        allow="autoplay"
+                        // iframe은 ref에 할당하지 않음 (play() 호출 불가)
+                      />
+                    );
+                  }
+
+                  // 일반 비디오 링크
+                  return (
+                    <video
+                      key={idx}
+                      ref={el => videoRefs.current[idx] = el}
+                      src={videoSrc}
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                        idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                      }`}
+                      muted
+                      loop
+                      playsInline
+                      // 첫 번째 영상은 초기 로드 시 자동 재생 시도
+                      autoPlay={idx === 0} 
+                    />
+                  );
+                })}
                 
                 {/* Status Badge */}
                 <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1.5 z-20 pointer-events-none">
