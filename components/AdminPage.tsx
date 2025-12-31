@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2 } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -18,7 +18,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
   const { 
     serviceItems, adminPassword, 
-    updateServiceItem, updateServiceImage,
+    updateServiceItem, addServiceImage, removeServiceImage,
     updatePassword, resetData 
   } = usePortfolio();
 
@@ -47,6 +47,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
     setNewPw('');
     setConfirmPw('');
   };
+
+  const badgeOptions = ["BEST", "HOT", "NEW", "SALE"];
 
   // --- 로그인 전 화면 ---
   if (!isAuthenticated) {
@@ -100,7 +102,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-slate-200 overflow-x-auto">
            <button 
@@ -131,8 +133,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
               {serviceItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 className="font-bold text-slate-700">
+                    <h3 className="font-bold text-slate-700 flex items-center gap-2">
                         {item.title}
+                        <span className="text-xs font-normal text-slate-400 bg-white border px-1.5 rounded">ID: {item.id}</span>
                     </h3>
                   </div>
                   
@@ -158,37 +161,73 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">뱃지 (BEST, HOT, NEW 등)</label>
+                        <label className="block text-xs font-bold text-slate-500 mb-2">뱃지 (선택 또는 직접입력)</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                           {badgeOptions.map(option => (
+                              <button 
+                                key={option}
+                                onClick={() => updateServiceItem(item.id, 'badge', option)}
+                                className={`px-2 py-1 text-xs rounded border transition-colors ${item.badge === option ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'}`}
+                              >
+                                {option}
+                              </button>
+                           ))}
+                           <button 
+                              onClick={() => updateServiceItem(item.id, 'badge', '')}
+                              className="px-2 py-1 text-xs rounded border bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                           >
+                             없음
+                           </button>
+                        </div>
                         <input 
                           type="text" 
                           value={item.badge}
                           onChange={(e) => updateServiceItem(item.id, 'badge', e.target.value)}
                           className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-red-500 transition-colors"
-                          placeholder="비워두면 표시 안됨"
+                          placeholder="뱃지 텍스트 직접 입력"
                         />
                       </div>
                     </div>
 
                     {/* 이미지 업로드 영역 (서비스) */}
                     <div className="space-y-6">
-                        {/* Result Image */}
+                        {/* Result Images */}
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-2 flex items-center gap-1">
-                                <Film className="w-3 h-3" /> 결과물 샘플 (영상/이미지)
-                            </label>
-                            <div className="relative w-full aspect-video group">
-                                <img src={item.result} className="w-full h-full object-cover rounded-lg border border-slate-200 bg-slate-50" alt="result" />
-                                 <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
-                                    <div className="text-white flex flex-col items-center">
-                                        <Upload className="w-8 h-8 mb-1" />
-                                        <span className="text-xs font-bold">샘플 변경</span>
-                                    </div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                    <Film className="w-3 h-3" /> 결과물 샘플 (다중 등록 가능)
+                                </label>
+                                <span className="text-[10px] text-slate-400">
+                                   * 여러 장 등록 시 자동 슬라이드 됩니다.
+                                </span>
+                            </div>
+                            
+                            <div className="grid grid-cols-3 gap-2">
+                                {item.results.map((imgSrc, idx) => (
+                                   <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200">
+                                      <img src={imgSrc} className="w-full h-full object-cover" alt={`sample-${idx}`} />
+                                      <button 
+                                        onClick={() => removeServiceImage(item.id, idx)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                      <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                         {idx + 1}
+                                      </span>
+                                   </div>
+                                ))}
+
+                                {/* Add Image Button */}
+                                <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
+                                    <Plus className="w-6 h-6 text-slate-400 mb-1" />
+                                    <span className="text-[10px] text-slate-500 font-bold">이미지 추가</span>
                                     <input 
                                         type="file" 
                                         accept="image/*"
                                         className="hidden"
                                         onChange={(e) => {
-                                            if(e.target.files?.[0]) updateServiceImage(item.id, 'result', null, e.target.files[0]);
+                                            if(e.target.files?.[0]) addServiceImage(item.id, e.target.files[0]);
                                         }}
                                     />
                                 </label>

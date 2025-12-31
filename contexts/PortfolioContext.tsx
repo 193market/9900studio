@@ -7,9 +7,11 @@ export interface ServiceItem {
   categoryKey: string;
   title: string;
   desc: string;
-  inputs: string[]; // 하위 호환성을 위해 유지하되, 빈 배열로 사용
-  result: string;
+  inputs: string[]; 
+  results: string[]; // 다중 이미지를 위해 배열로 변경
   badge: string;
+  // 하위 호환성을 위해 구버전 데이터가 들어올 경우 처리 필요
+  result?: string; 
 }
 
 interface PortfolioContextType {
@@ -18,7 +20,10 @@ interface PortfolioContextType {
   
   // 서비스 관리용 함수
   updateServiceItem: (id: number, field: keyof ServiceItem, value: any) => void;
-  updateServiceImage: (id: number, type: 'result', index: number | null, file: File) => void;
+  // 이미지 추가 (기존 이미지를 덮어쓰지 않고 배열에 추가)
+  addServiceImage: (id: number, file: File) => void;
+  // 이미지 삭제
+  removeServiceImage: (id: number, imageIndex: number) => void;
 
   updatePassword: (newPassword: string) => void;
   resetData: () => void;
@@ -26,16 +31,32 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-const STORAGE_KEY_SERVICES = 'service_data_v2'; // 키 변경하여 데이터 초기화 유도
+const STORAGE_KEY_SERVICES = 'service_data_v3'; // 키 변경하여 데이터 초기화 유도 (v3)
 const STORAGE_KEY_PW = 'admin_password_v1';
-// 보안을 위해 기본 비밀번호 변경
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
 export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // 2. 서비스 데이터 (Main)
   const [serviceItems, setServiceItems] = useState<ServiceItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_SERVICES);
-    return saved ? JSON.parse(saved) : INITIAL_SERVICE_ITEMS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // 마이그레이션 로직: 옛날 데이터(result 단일 문자열)가 있으면 results 배열로 변환
+        return parsed.map((item: any) => {
+          if (!item.results && item.result) {
+            return { ...item, results: [item.result] };
+          }
+          if (!item.results) {
+             return { ...item, results: [] };
+          }
+          return item;
+        });
+      } catch (e) {
+        return INITIAL_SERVICE_ITEMS;
+      }
+    }
+    return INITIAL_SERVICE_ITEMS;
   });
 
   // 3. 비밀번호
@@ -58,19 +79,26 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     ));
   };
 
-  const updateServiceImage = (id: number, type: 'result', index: number | null, file: File) => {
+  const addServiceImage = (id: number, file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
       setServiceItems(prev => prev.map(item => {
         if (item.id !== id) return item;
-        if (type === 'result') {
-          return { ...item, result: base64String };
-        }
-        return item;
+        // 기존 배열에 새 이미지 추가
+        return { ...item, results: [...item.results, base64String] };
       }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const removeServiceImage = (id: number, imageIndex: number) => {
+    setServiceItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const newResults = [...item.results];
+      newResults.splice(imageIndex, 1);
+      return { ...item, results: newResults };
+    }));
   };
 
   const updatePassword = (newPassword: string) => {
@@ -92,7 +120,8 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       serviceItems,
       adminPassword, 
       updateServiceItem,
-      updateServiceImage,
+      addServiceImage,
+      removeServiceImage,
       updatePassword, 
       resetData 
     }}>
