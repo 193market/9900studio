@@ -8,9 +8,9 @@ export interface ServiceItem {
   title: string;
   desc: string;
   inputs: string[]; 
-  results: string[]; // 다중 이미지를 위해 배열로 변경
+  results: string[]; // 다중 비디오 URL 배열
   badge: string;
-  // 하위 호환성을 위해 구버전 데이터가 들어올 경우 처리 필요
+  // 하위 호환성 (삭제 예정)
   result?: string; 
 }
 
@@ -20,10 +20,12 @@ interface PortfolioContextType {
   
   // 서비스 관리용 함수
   updateServiceItem: (id: number, field: keyof ServiceItem, value: any) => void;
-  // 이미지 추가 (기존 이미지를 덮어쓰지 않고 배열에 추가)
-  addServiceImage: (id: number, file: File) => void;
-  // 이미지 삭제
-  removeServiceImage: (id: number, imageIndex: number) => void;
+  // 비디오 파일 추가
+  addServiceVideo: (id: number, file: File) => Promise<void>;
+  // 비디오 URL 직접 추가
+  addServiceVideoUrl: (id: number, url: string) => void;
+  // 비디오 삭제
+  removeServiceVideo: (id: number, videoIndex: number) => void;
 
   updatePassword: (newPassword: string) => void;
   resetData: () => void;
@@ -31,7 +33,7 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-const STORAGE_KEY_SERVICES = 'service_data_v3'; // 키 변경하여 데이터 초기화 유도 (v3)
+const STORAGE_KEY_SERVICES = 'service_data_v4_video'; // 키 변경하여 데이터 초기화 (v4)
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
@@ -79,24 +81,42 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     ));
   };
 
-  const addServiceImage = (id: number, file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setServiceItems(prev => prev.map(item => {
-        if (item.id !== id) return item;
-        // 기존 배열에 새 이미지 추가
-        return { ...item, results: [...item.results, base64String] };
-      }));
-    };
-    reader.readAsDataURL(file);
+  const addServiceVideo = (id: number, file: File): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // 5MB 제한 체크 (LocalStorage 한계)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("브라우저 저장소 제한으로 인해 5MB 이하의 영상만 업로드 가능합니다.\n용량이 큰 영상은 URL로 등록해주세요.");
+        reject(new Error("File too large"));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setServiceItems(prev => prev.map(item => {
+          if (item.id !== id) return item;
+          return { ...item, results: [...item.results, base64String] };
+        }));
+        resolve();
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
-  const removeServiceImage = (id: number, imageIndex: number) => {
+  const addServiceVideoUrl = (id: number, url: string) => {
+    if (!url.trim()) return;
+    setServiceItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      return { ...item, results: [...item.results, url] };
+    }));
+  };
+
+  const removeServiceVideo = (id: number, videoIndex: number) => {
     setServiceItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       const newResults = [...item.results];
-      newResults.splice(imageIndex, 1);
+      newResults.splice(videoIndex, 1);
       return { ...item, results: newResults };
     }));
   };
@@ -120,8 +140,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       serviceItems,
       adminPassword, 
       updateServiceItem,
-      addServiceImage,
-      removeServiceImage,
+      addServiceVideo,
+      addServiceVideoUrl,
+      removeServiceVideo,
       updatePassword, 
       resetData 
     }}>

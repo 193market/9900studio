@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2 } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -12,13 +12,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
   const [inputPassword, setInputPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'services' | 'settings'>('services');
   
+  // URL 입력 상태 관리용
+  const [urlInputs, setUrlInputs] = useState<{[key: number]: string}>({});
+  
   // 비밀번호 변경용 State
   const [newPw, setNewPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
 
   const { 
     serviceItems, adminPassword, 
-    updateServiceItem, addServiceImage, removeServiceImage,
+    updateServiceItem, addServiceVideo, addServiceVideoUrl, removeServiceVideo,
     updatePassword, resetData 
   } = usePortfolio();
 
@@ -46,6 +49,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
     alert('비밀번호가 변경되었습니다.');
     setNewPw('');
     setConfirmPw('');
+  };
+
+  // URL 입력 핸들러
+  const handleUrlSubmit = (itemId: number) => {
+    const url = urlInputs[itemId];
+    if (url) {
+        addServiceVideoUrl(itemId, url);
+        setUrlInputs(prev => ({...prev, [itemId]: ''})); // 초기화
+    }
   };
 
   const badgeOptions = ["BEST", "HOT", "NEW", "SALE"];
@@ -189,26 +201,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                       </div>
                     </div>
 
-                    {/* 이미지 업로드 영역 (서비스) */}
+                    {/* 비디오 업로드 영역 (서비스) */}
                     <div className="space-y-6">
-                        {/* Result Images */}
+                        {/* Result Videos */}
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                                    <Film className="w-3 h-3" /> 결과물 샘플 (다중 등록 가능)
+                                    <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
                                 </label>
                                 <span className="text-[10px] text-slate-400">
-                                   * 여러 장 등록 시 자동 슬라이드 됩니다.
+                                   * 5초마다 자동 슬라이드
                                 </span>
                             </div>
                             
                             <div className="grid grid-cols-3 gap-2">
-                                {item.results.map((imgSrc, idx) => (
-                                   <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200">
-                                      <img src={imgSrc} className="w-full h-full object-cover" alt={`sample-${idx}`} />
+                                {item.results.map((videoSrc, idx) => (
+                                   <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
+                                      <video src={videoSrc} className="w-full h-full object-cover" muted />
                                       <button 
-                                        onClick={() => removeServiceImage(item.id, idx)}
-                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                        onClick={() => removeServiceVideo(item.id, idx)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
                                       >
                                         <Trash2 className="w-3 h-3" />
                                       </button>
@@ -217,21 +229,49 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                       </span>
                                    </div>
                                 ))}
+                            </div>
 
-                                {/* Add Image Button */}
-                                <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
-                                    <Plus className="w-6 h-6 text-slate-400 mb-1" />
-                                    <span className="text-[10px] text-slate-500 font-bold">이미지 추가</span>
+                            {/* Add Video Actions */}
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                {/* Option 1: File Upload */}
+                                <label className="p-3 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
+                                    <Upload className="w-4 h-4 text-slate-400 mb-1" />
+                                    <span className="text-[10px] text-slate-500 font-bold">파일 업로드</span>
+                                    <span className="text-[9px] text-slate-400">(5MB 이하)</span>
                                     <input 
                                         type="file" 
-                                        accept="image/*"
+                                        accept="video/*"
                                         className="hidden"
                                         onChange={(e) => {
-                                            if(e.target.files?.[0]) addServiceImage(item.id, e.target.files[0]);
+                                            if(e.target.files?.[0]) addServiceVideo(item.id, e.target.files[0]);
                                         }}
                                     />
                                 </label>
+
+                                {/* Option 2: URL Input */}
+                                <div className="p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                   <div className="flex items-center gap-1 mb-1">
+                                      <LinkIcon className="w-3 h-3 text-slate-400" />
+                                      <span className="text-[10px] font-bold text-slate-500">외부 영상 링크</span>
+                                   </div>
+                                   <div className="flex gap-1">
+                                      <input 
+                                        type="text" 
+                                        placeholder="https://..." 
+                                        className="w-full text-[10px] p-1 border rounded"
+                                        value={urlInputs[item.id] || ''}
+                                        onChange={(e) => setUrlInputs({...urlInputs, [item.id]: e.target.value})}
+                                      />
+                                      <button 
+                                        onClick={() => handleUrlSubmit(item.id)}
+                                        className="bg-slate-900 text-white text-[10px] px-2 rounded hover:bg-slate-800"
+                                      >
+                                        추가
+                                      </button>
+                                   </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                   </div>
