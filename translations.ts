@@ -1,3 +1,4 @@
+
 export const translations = {
   ko: {
     nav: {
@@ -8,9 +9,9 @@ export const translations = {
     },
     hero: {
       badge: '당일 제작 완료 보장',
-      title_prefix: '사진 몇 장만 주시면,',
+      title_prefix: '당신의 제품/서비스 사진을 주시면,',
       title_highlight: '오늘 바로',
-      title_suffix: 'AI 홍보 영상이 완성됩니다',
+      title_suffix: 'AI 홍보 영상이 완성됩니다.',
       desc: '복잡한 편집, 비싼 외주 비용은 잊으세요.\n단 ',
       desc_price: '₩9,900',
       desc_suffix: '에 기획부터 영상 제작까지 AI가 다 해드립니다.',
@@ -30,6 +31,7 @@ export const translations = {
     },
     services_menu: {
       title: '우리가 할 수 있는 것들',
+      description: '맞춤 제작을 원하시거나 제품 판매 링크를 영상으로 만들려면 문의하기를 이용하세요.',
       subtitle: '원하는 영상을 선택하세요.',
       categories: {}
     },
@@ -113,7 +115,7 @@ export const translations = {
     },
     hero: {
       badge: 'Same-Day Delivery Guaranteed',
-      title_prefix: 'Just send a few photos,',
+      title_prefix: 'Just send your product/service photos,',
       title_highlight: 'Get your AI Video',
       title_suffix: 'completed today.',
       desc: 'Forget complex editing and expensive outsourcing.\nFully produced AI videos for just ',
@@ -135,6 +137,7 @@ export const translations = {
     },
     services_menu: {
       title: 'Video Menu',
+      description: 'For custom orders or to create videos from product links, please use the inquiry form.',
       subtitle: 'Select the video you want.',
       categories: {}
     },
@@ -218,9 +221,9 @@ export const translations = {
     },
     hero: {
       badge: '即日納品保証',
-      title_prefix: '写真を数枚送るだけで、',
+      title_prefix: '製品やサービスの写真を送るだけで、',
       title_highlight: '今日すぐに',
-      title_suffix: 'AI広報動画が完成します',
+      title_suffix: 'AI広報動画が完成します。',
       desc: '複雑な編集や高額な外注費は忘れてください。\nたった ',
       desc_price: '₩9,900',
       desc_suffix: ' で企画から動画制作までAIが全て行います。',
@@ -240,6 +243,7 @@ export const translations = {
     },
     services_menu: {
       title: '私たちができること',
+      description: 'カスタム制作や製品リンクからの動画作成をご希望の場合は、お問い合わせください。',
       subtitle: 'ご希望の動画を選択してください。',
       categories: {}
     },
@@ -323,7 +327,7 @@ export const translations = {
     },
     hero: {
       badge: 'Đảm bảo hoàn thành trong ngày',
-      title_prefix: 'Chỉ cần gửi vài bức ảnh,',
+      title_prefix: 'Chỉ cần gửi ảnh sản phẩm/dịch vụ,',
       title_highlight: 'Nhận ngay',
       title_suffix: 'video quảng cáo AI hôm nay',
       desc: 'Quên đi việc chỉnh sửa phức tạp và chi phí thuê ngoài đắt đỏ.\nChỉ với ',
@@ -345,6 +349,7 @@ export const translations = {
     },
     services_menu: {
       title: 'Menu Video',
+      description: 'Vui lòng liên hệ nếu bạn muốn đặt hàng tùy chỉnh hoặc tạo video từ liên kết sản phẩm.',
       subtitle: 'Chọn loại video bạn muốn.',
       categories: {}
     },

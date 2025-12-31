@@ -250,7 +250,7 @@ const App: React.FC = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500">{t('hero.title_highlight')}</span> {t('hero.title_suffix')}
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-300 mb-12 max-w-2xl leading-relaxed break-keep animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+            <p className="text-lg md:text-xl text-slate-300 mb-12 max-w-2xl leading-loose break-keep animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
               {t('hero.desc')}<span className="text-white font-bold border-b-2 border-yellow-400">{t('hero.desc_price')}</span>{t('hero.desc_suffix')}
             </p>
 
@@ -283,6 +283,11 @@ const App: React.FC = () => {
                <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
                  {t('services_menu.title')}
                </h2>
+               
+               <p className="text-slate-500 mb-4 text-sm md:text-base font-medium">
+                 {t('services_menu.description')}
+               </p>
+
                <div className="w-24 h-1.5 bg-yellow-400 mx-auto mb-6 rounded-full"></div>
                <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto whitespace-pre-line leading-relaxed">
                  {t('services_menu.subtitle')}

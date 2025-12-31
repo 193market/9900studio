@@ -10,6 +10,11 @@ export interface ServiceItem {
   inputs: string[]; 
   results: string[]; // 다중 비디오 URL 배열
   badge: string;
+  
+  // 작업 가이드 (내부용)
+  aiSite?: string;    // 사용한 AI 사이트/툴 이름
+  aiPrompt?: string;  // 사용한 프롬프트
+
   // 하위 호환성 (삭제 예정)
   result?: string; 
 }
@@ -33,7 +38,7 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-const STORAGE_KEY_SERVICES = 'service_data_v4_video'; // 키 변경하여 데이터 초기화 (v4)
+const STORAGE_KEY_SERVICES = 'service_data_v6_items'; // 키 변경하여 데이터 업데이트 (v6: 5개 항목 추가)
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
@@ -44,15 +49,23 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // 마이그레이션 로직: 옛날 데이터(result 단일 문자열)가 있으면 results 배열로 변환
+        // 마이그레이션 로직
         return parsed.map((item: any) => {
-          if (!item.results && item.result) {
-            return { ...item, results: [item.result] };
+          // 1. result -> results 변환
+          let newResults = item.results;
+          if (!newResults && item.result) {
+            newResults = [item.result];
+          } else if (!newResults) {
+            newResults = [];
           }
-          if (!item.results) {
-             return { ...item, results: [] };
-          }
-          return item;
+
+          return { 
+            ...item, 
+            results: newResults,
+            // 2. aiSite, aiPrompt 초기화 (없으면 빈 문자열)
+            aiSite: item.aiSite || '',
+            aiPrompt: item.aiPrompt || ''
+          };
         });
       } catch (e) {
         return INITIAL_SERVICE_ITEMS;

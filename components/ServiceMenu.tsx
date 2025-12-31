@@ -65,24 +65,33 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
 
   return (
     <div className="group relative bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden flex flex-col h-full">
-      {/* Top Banner (Header) */}
-      <div className="px-6 pt-6 pb-2">
-         <div className="flex justify-between items-start mb-2">
-            <h4 className="text-xl font-black text-slate-900 leading-tight">
-              {item.title}
-            </h4>
-            {item.badge && (
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm shrink-0 uppercase tracking-wide ${
-                 item.badge === 'BEST' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' : 
-                 item.badge === 'HOT' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 
-                 item.badge === 'NEW' ? 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white' : 'bg-slate-100 text-slate-600'
-              }`}>
-                {item.badge === 'BEST' && <Sparkles className="w-3 h-3 fill-white" />}
-                {item.badge === 'HOT' && <Zap className="w-3 h-3 fill-white" />}
-                {item.badge}
-              </span>
-            )}
+      {/* Top Banner (Header) - Centered */}
+      <div className="px-6 pt-6 pb-2 text-center flex flex-col items-center">
+         
+         {/* Badge Area - Fixed Height for Alignment */}
+         <div className="h-7 mb-3 flex items-center justify-center w-full">
+           {item.badge ? (
+             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm shrink-0 uppercase tracking-wide ${
+                item.badge === 'BEST' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' : 
+                item.badge === 'HOT' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 
+                item.badge === 'NEW' ? 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white' : 'bg-slate-100 text-slate-600'
+             }`}>
+               {item.badge === 'BEST' && <Sparkles className="w-3 h-3 fill-white" />}
+               {item.badge === 'HOT' && <Zap className="w-3 h-3 fill-white" />}
+               {item.badge}
+             </span>
+           ) : (
+             // Placeholder to keep layout consistent if no badge
+             <div className="w-1 h-1"></div>
+           )}
          </div>
+
+         {/* Title */}
+         <h4 className="text-xl font-black text-slate-900 leading-tight mb-2 h-14 flex items-center justify-center">
+           {item.title}
+         </h4>
+
+         {/* Description */}
          <p className="text-sm text-slate-500 leading-relaxed min-h-[44px]">
             {item.desc}
          </p>

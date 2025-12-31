@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -151,129 +151,162 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                     </h3>
                   </div>
                   
-                  <div className="p-6 grid md:grid-cols-2 gap-8">
-                    {/* 텍스트 수정 영역 */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
-                        <input 
-                          type="text" 
-                          value={item.title}
-                          onChange={(e) => updateServiceItem(item.id, 'title', e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none font-bold transition-colors text-slate-900"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">설명</label>
-                        <input 
-                          type="text" 
-                          value={item.desc}
-                          onChange={(e) => updateServiceItem(item.id, 'desc', e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none transition-colors text-slate-900"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-2">뱃지 (선택 또는 직접입력)</label>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                           {badgeOptions.map(option => (
-                              <button 
-                                key={option}
-                                onClick={() => updateServiceItem(item.id, 'badge', option)}
-                                className={`px-2 py-1 text-xs rounded border transition-colors ${item.badge === option ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'}`}
-                              >
-                                {option}
-                              </button>
-                           ))}
-                           <button 
-                              onClick={() => updateServiceItem(item.id, 'badge', '')}
-                              className="px-2 py-1 text-xs rounded border bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
-                           >
-                             없음
-                           </button>
-                        </div>
-                        <input 
-                          type="text" 
-                          value={item.badge}
-                          onChange={(e) => updateServiceItem(item.id, 'badge', e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-red-500 transition-colors"
-                          placeholder="뱃지 텍스트 직접 입력"
-                        />
-                      </div>
-                    </div>
-
-                    {/* 비디오 업로드 영역 (서비스) */}
-                    <div className="space-y-6">
-                        {/* Result Videos */}
+                  <div className="p-6">
+                    <div className="grid md:grid-cols-2 gap-8 mb-6">
+                      {/* 텍스트 수정 영역 */}
+                      <div className="space-y-4">
                         <div>
-                            <div className="flex items-center justify-between mb-2">
-                                <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                                    <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
-                                </label>
-                                <span className="text-[10px] text-slate-400">
-                                   * 5초마다 자동 슬라이드
-                                </span>
-                            </div>
-                            
-                            <div className="grid grid-cols-3 gap-2">
-                                {item.results.map((videoSrc, idx) => (
-                                   <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
-                                      <video src={videoSrc} className="w-full h-full object-cover" muted />
-                                      <button 
-                                        onClick={() => removeServiceVideo(item.id, idx)}
-                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
-                                      >
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
-                                      <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
-                                         {idx + 1}
-                                      </span>
-                                   </div>
-                                ))}
-                            </div>
-
-                            {/* Add Video Actions */}
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                                {/* Option 1: File Upload */}
-                                <label className="p-3 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
-                                    <Upload className="w-4 h-4 text-slate-400 mb-1" />
-                                    <span className="text-[10px] text-slate-500 font-bold">파일 업로드</span>
-                                    <span className="text-[9px] text-slate-400">(5MB 이하)</span>
-                                    <input 
-                                        type="file" 
-                                        accept="video/*"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            if(e.target.files?.[0]) addServiceVideo(item.id, e.target.files[0]);
-                                        }}
-                                    />
-                                </label>
-
-                                {/* Option 2: URL Input */}
-                                <div className="p-2 border border-slate-200 rounded-lg bg-slate-50">
-                                   <div className="flex items-center gap-1 mb-1">
-                                      <LinkIcon className="w-3 h-3 text-slate-400" />
-                                      <span className="text-[10px] font-bold text-slate-500">외부 영상 링크</span>
-                                   </div>
-                                   <div className="flex gap-1">
-                                      <input 
-                                        type="text" 
-                                        placeholder="https://..." 
-                                        className="w-full text-[10px] p-1 border rounded"
-                                        value={urlInputs[item.id] || ''}
-                                        onChange={(e) => setUrlInputs({...urlInputs, [item.id]: e.target.value})}
-                                      />
-                                      <button 
-                                        onClick={() => handleUrlSubmit(item.id)}
-                                        className="bg-slate-900 text-white text-[10px] px-2 rounded hover:bg-slate-800"
-                                      >
-                                        추가
-                                      </button>
-                                   </div>
-                                </div>
-                            </div>
-
+                          <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
+                          <input 
+                            type="text" 
+                            value={item.title}
+                            onChange={(e) => updateServiceItem(item.id, 'title', e.target.value)}
+                            className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none font-bold transition-colors text-slate-900"
+                          />
                         </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-1">설명</label>
+                          <input 
+                            type="text" 
+                            value={item.desc}
+                            onChange={(e) => updateServiceItem(item.id, 'desc', e.target.value)}
+                            className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none transition-colors text-slate-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-2">뱃지 (선택 또는 직접입력)</label>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {badgeOptions.map(option => (
+                                <button 
+                                  key={option}
+                                  onClick={() => updateServiceItem(item.id, 'badge', option)}
+                                  className={`px-2 py-1 text-xs rounded border transition-colors ${item.badge === option ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'}`}
+                                >
+                                  {option}
+                                </button>
+                            ))}
+                            <button 
+                                onClick={() => updateServiceItem(item.id, 'badge', '')}
+                                className="px-2 py-1 text-xs rounded border bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                            >
+                              없음
+                            </button>
+                          </div>
+                          <input 
+                            type="text" 
+                            value={item.badge}
+                            onChange={(e) => updateServiceItem(item.id, 'badge', e.target.value)}
+                            className="w-full p-2 bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-red-500 transition-colors"
+                            placeholder="뱃지 텍스트 직접 입력"
+                          />
+                        </div>
+                      </div>
+
+                      {/* 비디오 업로드 영역 (서비스) */}
+                      <div className="space-y-6">
+                          {/* Result Videos */}
+                          <div>
+                              <div className="flex items-center justify-between mb-2">
+                                  <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                      <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
+                                  </label>
+                                  <span className="text-[10px] text-slate-400">
+                                    * 5초마다 자동 슬라이드
+                                  </span>
+                              </div>
+                              
+                              <div className="grid grid-cols-3 gap-2">
+                                  {item.results.map((videoSrc, idx) => (
+                                    <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
+                                        <video src={videoSrc} className="w-full h-full object-cover" muted />
+                                        <button 
+                                          onClick={() => removeServiceVideo(item.id, idx)}
+                                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                        <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                          {idx + 1}
+                                        </span>
+                                    </div>
+                                  ))}
+                              </div>
+
+                              {/* Add Video Actions */}
+                              <div className="grid grid-cols-2 gap-2 mt-2">
+                                  {/* Option 1: File Upload */}
+                                  <label className="p-3 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
+                                      <Upload className="w-4 h-4 text-slate-400 mb-1" />
+                                      <span className="text-[10px] text-slate-500 font-bold">파일 업로드</span>
+                                      <span className="text-[9px] text-slate-400">(5MB 이하)</span>
+                                      <input 
+                                          type="file" 
+                                          accept="video/*"
+                                          className="hidden"
+                                          onChange={(e) => {
+                                              if(e.target.files?.[0]) addServiceVideo(item.id, e.target.files[0]);
+                                          }}
+                                      />
+                                  </label>
+
+                                  {/* Option 2: URL Input */}
+                                  <div className="p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                    <div className="flex items-center gap-1 mb-1">
+                                        <LinkIcon className="w-3 h-3 text-slate-400" />
+                                        <span className="text-[10px] font-bold text-slate-500">외부 영상 링크</span>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <input 
+                                          type="text" 
+                                          placeholder="https://..." 
+                                          className="w-full text-[10px] p-1 border rounded"
+                                          value={urlInputs[item.id] || ''}
+                                          onChange={(e) => setUrlInputs({...urlInputs, [item.id]: e.target.value})}
+                                        />
+                                        <button 
+                                          onClick={() => handleUrlSubmit(item.id)}
+                                          className="bg-slate-900 text-white text-[10px] px-2 rounded hover:bg-slate-800"
+                                        >
+                                          추가
+                                        </button>
+                                    </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
                     </div>
+
+                    {/* AI 제작 가이드 섹션 (새로 추가됨) */}
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                       <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                          <Bot className="w-4 h-4 text-slate-500" /> 
+                          AI 제작 가이드 (내부 작업자용)
+                       </h4>
+                       <div className="grid md:grid-cols-1 gap-4">
+                          <div>
+                             <label className="text-xs font-bold text-slate-500 mb-1 block">사용 AI 툴 / 사이트</label>
+                             <input 
+                                type="text"
+                                placeholder="예: Runway Gen-3, Midjourney v6" 
+                                value={item.aiSite || ''}
+                                onChange={(e) => updateServiceItem(item.id, 'aiSite', e.target.value)}
+                                className="w-full p-2 text-sm bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-slate-900"
+                             />
+                          </div>
+                          <div>
+                             <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                <FileText className="w-3 h-3" /> 참조 프롬프트 (Prompt)
+                             </label>
+                             <textarea 
+                                placeholder="이 영상을 만들 때 사용한 프롬프트를 기록하세요..." 
+                                value={item.aiPrompt || ''}
+                                onChange={(e) => updateServiceItem(item.id, 'aiPrompt', e.target.value)}
+                                className="w-full p-2 text-sm bg-white border border-slate-300 rounded focus:border-blue-500 outline-none h-20 resize-none text-slate-600 font-mono"
+                             />
+                          </div>
+                       </div>
+                    </div>
+
                   </div>
                 </div>
               ))}
