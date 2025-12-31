@@ -23,16 +23,6 @@ export const INITIAL_SERVICE_ITEMS = [
     aiPrompt: "Cinematic close-up shot of street food cooking, steam rising, vibrant colors, 4k, high detail"
   },
   {
-    id: 2, categoryKey: 'video', badge: "NEW",
-    title: "신년 스페셜 (New Year)", desc: "새해 맞이 프로모션이나 인사를 위한 시즌 한정 템플릿입니다.",
-    inputs: [],
-    results: [
-      "https://cdn.coverr.co/videos/coverr-fireworks-in-the-sky-5238/1080p.mp4"
-    ],
-    aiSite: "Luma Dream Machine",
-    aiPrompt: "Colorful fireworks exploding in the night sky, city skyline in background, festive atmosphere"
-  },
-  {
     id: 3, categoryKey: 'video', badge: "",
     title: "언박싱 (Unboxing)", desc: "제품의 포장을 뜯고 구성품을 보여주는 생동감 넘치는 리뷰 영상입니다.",
     inputs: [],
@@ -151,6 +141,16 @@ export const INITIAL_SERVICE_ITEMS = [
     ],
     aiSite: "Leonardo.ai Motion",
     aiPrompt: "Black Friday bold typography, red and black theme, fast cuts, shopping bags, excitement, motion graphics"
+  },
+  {
+    id: 2, categoryKey: 'video', badge: "NEW",
+    title: "신년 스페셜 (New Year)", desc: "새해 맞이 프로모션이나 인사를 위한 시즌 한정 템플릿입니다.",
+    inputs: [],
+    results: [
+      "https://cdn.coverr.co/videos/coverr-fireworks-in-the-sky-5238/1080p.mp4"
+    ],
+    aiSite: "Luma Dream Machine",
+    aiPrompt: "Colorful fireworks exploding in the night sky, city skyline in background, festive atmosphere"
   }
 ];
 

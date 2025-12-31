@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  ArrowRight, Sparkles, Zap, PlayCircle, AlertCircle, ExternalLink
+  ArrowRight, Sparkles, Zap, PlayCircle, AlertCircle, ExternalLink, Flame, Gift, Tag
 } from 'lucide-react';
 
 interface ServiceMenuProps {
@@ -123,31 +123,77 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
     });
   }, [currentVideoIndex]);
 
+  // 뱃지에 따른 스타일 결정
+  const getBadgeStyle = (badge: string) => {
+    switch(badge?.toUpperCase()) {
+      case 'BEST': return {
+        bg: 'bg-gradient-to-r from-amber-400 to-orange-500',
+        icon: <Sparkles className="w-3.5 h-3.5 fill-white/90 text-white" />,
+        glow: 'shadow-orange-400/50',
+        border: 'border-amber-200 group-hover:border-amber-400',
+        cardBg: 'from-amber-50/50 to-white'
+      };
+      case 'HOT': return {
+        bg: 'bg-gradient-to-r from-red-500 to-rose-500',
+        icon: <Flame className="w-3.5 h-3.5 fill-white/90 text-white" />,
+        glow: 'shadow-red-400/50',
+        border: 'border-red-200 group-hover:border-red-400',
+        cardBg: 'from-red-50/50 to-white'
+      };
+      case 'NEW': return {
+        bg: 'bg-gradient-to-r from-blue-400 to-indigo-500',
+        icon: <Zap className="w-3.5 h-3.5 fill-white/90 text-white" />,
+        glow: 'shadow-blue-400/50',
+        border: 'border-blue-200 group-hover:border-blue-400',
+        cardBg: 'from-blue-50/50 to-white'
+      };
+      case 'SALE': return {
+        bg: 'bg-gradient-to-r from-emerald-400 to-teal-500',
+        icon: <Tag className="w-3.5 h-3.5 fill-white/90 text-white" />,
+        glow: 'shadow-emerald-400/50',
+        border: 'border-emerald-200 group-hover:border-emerald-400',
+        cardBg: 'from-emerald-50/50 to-white'
+      };
+      case 'EVENT': return {
+        bg: 'bg-gradient-to-r from-purple-400 to-pink-500',
+        icon: <Gift className="w-3.5 h-3.5 fill-white/90 text-white" />,
+        glow: 'shadow-purple-400/50',
+        border: 'border-purple-200 group-hover:border-purple-400',
+        cardBg: 'from-purple-50/50 to-white'
+      };
+      default: return {
+        bg: 'bg-slate-100',
+        icon: null,
+        glow: 'shadow-transparent',
+        border: 'border-slate-100 group-hover:border-slate-300',
+        cardBg: 'from-slate-50/50 to-white'
+      };
+    }
+  };
+
+  const style = getBadgeStyle(item.badge);
+
   return (
-    <div className="group relative bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden flex flex-col h-full">
-      {/* Top Banner (Header) - Centered */}
-      <div className="px-6 pt-6 pb-2 text-center flex flex-col items-center">
+    <div 
+      className={`group relative bg-white rounded-[2rem] border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full overflow-hidden ${style.border}`}
+    >
+      {/* Top Banner (Header) */}
+      <div className={`px-6 pt-6 pb-2 text-center flex flex-col items-center bg-gradient-to-b ${style.cardBg}`}>
          
-         {/* Badge Area - Fixed Height for Alignment */}
-         <div className="h-7 mb-3 flex items-center justify-center w-full">
+         {/* Badge Area */}
+         <div className="h-8 mb-3 flex items-center justify-center w-full">
            {item.badge ? (
-             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm shrink-0 uppercase tracking-wide ${
-                item.badge === 'BEST' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' : 
-                item.badge === 'HOT' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 
-                item.badge === 'NEW' ? 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white' : 'bg-slate-100 text-slate-600'
-             }`}>
-               {item.badge === 'BEST' && <Sparkles className="w-3 h-3 fill-white" />}
-               {item.badge === 'HOT' && <Zap className="w-3 h-3 fill-white" />}
+             <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg shrink-0 uppercase tracking-wide text-white transform group-hover:scale-105 transition-transform ${style.bg} ${style.glow}`}>
+               {style.icon}
                {item.badge}
              </span>
            ) : (
-             // Placeholder to keep layout consistent if no badge
              <div className="w-1 h-1"></div>
            )}
          </div>
 
          {/* Title */}
-         <h4 className="text-xl font-black text-slate-900 leading-tight mb-2 h-14 flex items-center justify-center">
+         <h4 className="text-xl font-black text-slate-900 leading-tight mb-2 h-14 flex items-center justify-center break-keep">
            {item.title}
          </h4>
 
@@ -158,12 +204,12 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
       </div>
 
       {/* Visual Area (Result Only) */}
-      <div className="flex-1 p-3 flex flex-col">
-         <div className="bg-slate-50/80 rounded-3xl p-3 border border-slate-100 h-full flex flex-col relative">
+      <div className="flex-1 p-3 flex flex-col bg-white">
+         <div className="bg-slate-50 rounded-3xl p-2 border border-slate-100 h-full flex flex-col relative group-hover:border-slate-200 transition-colors">
             
             {/* Result (Main) - Video Carousel */}
             <div 
-              className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black"
+              className="flex-1 relative rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all border border-slate-200 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >

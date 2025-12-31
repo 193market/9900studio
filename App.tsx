@@ -19,7 +19,8 @@ import {
   Zap,
   Lock,
   Globe,
-  ChevronDown
+  ChevronDown,
+  ExternalLink
 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -254,8 +255,18 @@ const App: React.FC = () => {
               {t('hero.desc')}<span className="text-white font-bold border-b-2 border-yellow-400">{t('hero.desc_price')}</span>{t('hero.desc_suffix')}
             </p>
 
-            <Button size="lg" onClick={() => handleOrder()} className="animate-pulse shadow-[0_0_40px_rgba(250,204,21,0.3)] px-10 py-5 text-xl rounded-full animate-in fade-in zoom-in duration-700 delay-300">
-              {t('hero.cta')}
+            {/* Hover Action Button */}
+            <Button 
+              size="lg" 
+              onClick={() => handleOrder()} 
+              className="group relative overflow-hidden animate-pulse shadow-[0_0_40px_rgba(250,204,21,0.3)] px-10 py-5 text-xl rounded-full animate-in fade-in zoom-in duration-700 delay-300 min-w-[320px]"
+            >
+              <span className="block transition-all duration-300 group-hover:-translate-y-[150%]">
+                {t('hero.cta')}
+              </span>
+              <span className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center justify-center gap-2 transition-all duration-300 translate-y-[150%] opacity-0 group-hover:translate-y-[-50%] group-hover:opacity-100 text-slate-900">
+                 {t('hero.cta_hover')} <ExternalLink className="w-5 h-5" />
+              </span>
             </Button>
             
             <p className="mt-4 text-xs text-slate-400 animate-in fade-in duration-1000 delay-500">

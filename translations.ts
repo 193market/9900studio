@@ -16,6 +16,7 @@ export const translations = {
       desc_price: '₩9,900',
       desc_suffix: '에 기획부터 영상 제작까지 AI가 다 해드립니다.',
       cta: '👉 ₩9,900 스튜디오 시작하기',
+      cta_hover: '네이버 스마트스토어로 이동',
       disclaimer: '* 결과물 불만족 시 100% 환불 보장',
     },
     portfolio: {
@@ -122,6 +123,7 @@ export const translations = {
       desc_price: '$9',
       desc_suffix: '.',
       cta: '👉 Start Studio for $9',
+      cta_hover: 'Go to Smart Store',
       disclaimer: '* 100% Refund if not satisfied',
     },
     portfolio: {
@@ -228,6 +230,7 @@ export const translations = {
       desc_price: '₩9,900',
       desc_suffix: ' で企画から動画制作までAIが全て行います。',
       cta: '👉 ₩9,900でスタジオを始める',
+      cta_hover: 'スマートストアへ移動',
       disclaimer: '* 結果に満足できない場合は100%返金保証',
     },
     portfolio: {
@@ -334,6 +337,7 @@ export const translations = {
       desc_price: '₩9,900',
       desc_suffix: ', AI sẽ làm tất cả từ lên kế hoạch đến sản xuất video.',
       cta: '👉 Bắt đầu Studio với giá ₩9,900',
+      cta_hover: 'Đến Smart Store',
       disclaimer: '* Hoàn tiền 100% nếu không hài lòng với kết quả',
     },
     portfolio: {
