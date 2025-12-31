@@ -7,7 +7,7 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼 (초강력 버전)
+// 영상 링크 타입 판별 및 변환 헬퍼 (범용성 강화 버전)
 const getVideoEmbedInfo = (inputUrl: string) => {
   let url = inputUrl.trim();
 
@@ -17,6 +17,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     if (srcMatch && srcMatch[1]) {
       url = srcMatch[1];
     }
+    return { type: 'iframe', url: url, originalUrl: url };
   }
 
   // 1. Google Drive
@@ -50,8 +51,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
       };
     }
     
-    // ID를 못 찾았지만 드라이브 링크인 경우
-    return { type: 'error', message: '올바른 파일 링크 형식이 아닙니다.' }; 
+    return { type: 'error', message: '올바른 구글 드라이브 링크 형식이 아닙니다.' }; 
   }
 
   // 2. YouTube
@@ -68,8 +68,26 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     }
   }
 
-  // 3. Direct File (Default)
-  return { type: 'video', url: url, originalUrl: url };
+  // 3. TeraBox (추가됨)
+  if (url.includes('terabox')) {
+    return { 
+        type: 'terabox', 
+        url: url, 
+        originalUrl: url 
+    };
+  }
+
+  // 4. Direct File vs General Web Link
+  // .mp4, .webm, .ogg, .mov 등으로 끝나지 않으면 iframe으로 간주 (안전장치)
+  // 단, 쿼리 스트링이 있을 수 있으므로 확장자 체크는 신중하게
+  const isVideoFile = /\.(mp4|webm|ogg|mov)($|\?)/i.test(url);
+  
+  if (isVideoFile) {
+      return { type: 'video', url: url, originalUrl: url };
+  } else {
+      // 확장자가 없는 경우, blob: 이나 data: 가 아니면 iframe으로 처리하는게 안전함 (무한로딩 방지)
+      return { type: 'iframe', url: url, originalUrl: url };
+  }
 };
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
@@ -210,10 +228,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-1">
                         <span>
-                            <b>권한 체크:</b> 구글 드라이브 영상은 <u>'링크가 있는 모든 사용자에게 공개'</u>여야 합니다.
+                            <b>권한 체크:</b> 클라우드 영상은 반드시 <u>'공개'</u> 상태여야 합니다.
                         </span>
                         <span className="text-blue-600 border-t border-blue-200 pt-1 mt-1">
-                            <b>"처리 중..." 오류:</b> 방금 올린 영상은 구글 서버 처리가 끝날 때까지 기다려야 합니다.
+                            <b>링크 팁:</b> .mp4로 끝나지 않는 링크(테라박스 등)는 자동으로 웹 뷰어 모드로 표시됩니다.
                         </span>
                     </div>
                 </div>
@@ -307,7 +325,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                                   {embedInfo.message}
                                                 </p>
                                              </div>
-                                          ) : embedInfo.type === 'drive' || embedInfo.type === 'youtube' ? (
+                                          ) : embedInfo.type !== 'video' ? (
                                              <>
                                                 <iframe 
                                                   src={embedInfo.url} 

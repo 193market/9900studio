@@ -9,7 +9,7 @@ interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼 (강화됨)
+// 영상 링크 타입 판별 및 변환 헬퍼 (범용성 강화 버전)
 const getVideoEmbedInfo = (inputUrl: string) => {
   let url = inputUrl.trim();
 
@@ -19,6 +19,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     if (srcMatch && srcMatch[1]) {
       url = srcMatch[1];
     }
+    return { type: 'iframe', url: url, originalUrl: url };
   }
 
   // 1. Google Drive
@@ -70,8 +71,26 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     }
   }
 
-  // 3. Direct File (Default)
-  return { type: 'video', url: url, originalUrl: url };
+  // 3. TeraBox (추가됨)
+  if (url.includes('terabox')) {
+    return { 
+        type: 'terabox', 
+        url: url, 
+        originalUrl: url 
+    };
+  }
+
+  // 4. Direct File vs General Web Link
+  // .mp4, .webm, .ogg, .mov 등으로 끝나지 않으면 iframe으로 간주 (안전장치)
+  // 단, 쿼리 스트링이 있을 수 있으므로 확장자 체크는 신중하게
+  const isVideoFile = /\.(mp4|webm|ogg|mov)($|\?)/i.test(url);
+  
+  if (isVideoFile) {
+      return { type: 'video', url: url, originalUrl: url };
+  } else {
+      // 확장자가 없는 경우, blob: 이나 data: 가 아니면 iframe으로 처리하는게 안전함 (무한로딩 방지)
+      return { type: 'iframe', url: url, originalUrl: url };
+  }
 };
 
 export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
@@ -192,7 +211,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                      );
                   }
 
-                  // External Video (Drive, YouTube) -> iframe
+                  // External Video (Drive, YouTube, TeraBox, General Web) -> iframe
                   if (embedInfo.type !== 'video') {
                     return (
                       <React.Fragment key={idx}>
@@ -225,7 +244,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                   return (
                     <video
                       key={idx}
-                      ref={el => videoRefs.current[idx] = el}
+                      ref={(el) => { videoRefs.current[idx] = el; }}
                       src={embedInfo.url}
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                         isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
