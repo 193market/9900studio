@@ -7,7 +7,7 @@ export interface ServiceItem {
   categoryKey: string;
   title: string;
   desc: string;
-  inputs: string[];
+  inputs: string[]; // 하위 호환성을 위해 유지하되, 빈 배열로 사용
   result: string;
   badge: string;
 }
@@ -18,7 +18,7 @@ interface PortfolioContextType {
   
   // 서비스 관리용 함수
   updateServiceItem: (id: number, field: keyof ServiceItem, value: any) => void;
-  updateServiceImage: (id: number, type: 'input' | 'result', index: number | null, file: File) => void;
+  updateServiceImage: (id: number, type: 'result', index: number | null, file: File) => void;
 
   updatePassword: (newPassword: string) => void;
   resetData: () => void;
@@ -26,7 +26,7 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-const STORAGE_KEY_SERVICES = 'service_data_v1';
+const STORAGE_KEY_SERVICES = 'service_data_v2'; // 키 변경하여 데이터 초기화 유도
 const STORAGE_KEY_PW = 'admin_password_v1';
 // 보안을 위해 기본 비밀번호 변경
 const DEFAULT_PASSWORD = 'MRwol093462!';
@@ -58,7 +58,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     ));
   };
 
-  const updateServiceImage = (id: number, type: 'input' | 'result', index: number | null, file: File) => {
+  const updateServiceImage = (id: number, type: 'result', index: number | null, file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
@@ -66,10 +66,6 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
         if (item.id !== id) return item;
         if (type === 'result') {
           return { ...item, result: base64String };
-        } else if (type === 'input' && index !== null) {
-          const newInputs = [...item.inputs];
-          newInputs[index] = base64String;
-          return { ...item, inputs: newInputs };
         }
         return item;
       }));

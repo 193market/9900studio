@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Image as ImageIcon, Film, Settings, RotateCcw, Save, Grid } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -123,7 +123,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-slate-900">서비스 메뉴 수정</h2>
                 <p className="text-sm text-slate-500 bg-white px-3 py-1 rounded border border-slate-200 shadow-sm">
-                    카테고리별 서비스 목록
+                    영상 서비스 목록
                 </p>
             </div>
 
@@ -132,7 +132,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                 <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                     <h3 className="font-bold text-slate-700">
-                        <span className="text-slate-400 mr-2">[{item.categoryKey}]</span>
                         {item.title}
                     </h3>
                   </div>
@@ -159,7 +158,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">뱃지 (BEST, HOT 등)</label>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">뱃지 (BEST, HOT, NEW 등)</label>
                         <input 
                           type="text" 
                           value={item.badge}
@@ -172,42 +171,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
                     {/* 이미지 업로드 영역 (서비스) */}
                     <div className="space-y-6">
-                        {/* Input Images */}
-                        <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-2 flex items-center gap-1">
-                                <ImageIcon className="w-3 h-3" /> 입력 사진 (Before) - 3장
-                            </label>
-                            <div className="flex gap-2">
-                                {item.inputs.map((imgUrl, idx) => (
-                                    <div key={idx} className="relative w-20 h-20 group">
-                                        <img src={imgUrl} className="w-full h-full object-cover rounded-lg border border-slate-200 bg-slate-50" alt={`input-${idx}`} />
-                                        <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
-                                            <Upload className="w-5 h-5 text-white" />
-                                            <input 
-                                                type="file" 
-                                                accept="image/*"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    if(e.target.files?.[0]) updateServiceImage(item.id, 'input', idx, e.target.files[0]);
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
                         {/* Result Image */}
                         <div>
                             <label className="block text-xs font-bold text-slate-500 mb-2 flex items-center gap-1">
-                                <Film className="w-3 h-3" /> 결과물 썸네일 (After)
+                                <Film className="w-3 h-3" /> 결과물 샘플 (영상/이미지)
                             </label>
                             <div className="relative w-full aspect-video group">
                                 <img src={item.result} className="w-full h-full object-cover rounded-lg border border-slate-200 bg-slate-50" alt="result" />
                                  <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
                                     <div className="text-white flex flex-col items-center">
                                         <Upload className="w-8 h-8 mb-1" />
-                                        <span className="text-xs font-bold">결과물 변경</span>
+                                        <span className="text-xs font-bold">샘플 변경</span>
                                     </div>
                                     <input 
                                         type="file" 
@@ -266,7 +240,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                    <AlertIcon /> 데이터 초기화
                 </h3>
                 <p className="text-red-600 text-sm mb-6">
-                  모든 포트폴리오/서비스 데이터와 비밀번호를 초기 상태로 되돌립니다.
+                  모든 데이터와 비밀번호를 초기 상태로 되돌립니다.
                 </p>
                 <button 
                   onClick={resetData}

@@ -5,6 +5,7 @@ import { AdminPage } from './components/AdminPage';
 import { TermsPage } from './components/TermsPage';
 import { PrivacyPage } from './components/PrivacyPage';
 import { ServiceMenu } from './components/ServiceMenu';
+import { ChatWidget } from './components/ChatWidget';
 import { useLanguage } from './contexts/LanguageContext';
 import { 
   CheckCircle2, 
@@ -28,11 +29,11 @@ const App: React.FC = () => {
   const [initialService, setInitialService] = useState('');
   const { t, language, setLanguage } = useLanguage();
 
-  // URL 경로 체크하여 관리자 페이지 진입 (/9900)
+  // URL 경로 체크하여 관리자 페이지 진입 (/9900 또는 /admin)
   useEffect(() => {
     // pathname에서 마지막 슬래시 제거 후 비교
     const path = window.location.pathname.replace(/\/$/, '');
-    if (path === '/9900') {
+    if (path === '/9900' || path === '/admin') {
       setView('admin');
     }
   }, []);
@@ -87,15 +88,10 @@ const App: React.FC = () => {
   const handleBackToLanding = () => {
     setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // URL이 /9900으로 남아있을 수 있으므로 pushState로 정리
-    if (window.location.pathname.includes('/9900')) {
+    // URL이 /9900 또는 /admin으로 남아있을 수 있으므로 pushState로 정리
+    if (window.location.pathname.includes('/9900') || window.location.pathname.includes('/admin')) {
       window.history.pushState({}, '', '/');
     }
-  };
-
-  // 1:1 상담 링크 (카카오톡)
-  const handleChatInquiry = () => {
-    window.open('http://pf.kakao.com/_YfxiUn/chat', '_blank');
   };
 
   // --- View Routing ---
@@ -123,7 +119,7 @@ const App: React.FC = () => {
 
   // --- Landing Page View ---
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 pb-24 md:pb-0">
+    <div className="min-h-screen bg-white font-sans text-slate-900 pb-24 md:pb-0 relative">
       
       {/* --- Header --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 h-16 transition-all">
@@ -297,7 +293,12 @@ const App: React.FC = () => {
              
              <div className="mt-16 text-center">
                 <p className="text-slate-500 mb-6 text-sm">원하는 서비스가 없으신가요? 1:1 맞춤 제작도 가능합니다.</p>
-                <Button size="lg" onClick={handleChatInquiry} className="shadow-xl shadow-yellow-400/20 px-10 py-4 text-lg">
+                <Button size="lg" onClick={() => { 
+                   // Open chat widget if possible, otherwise scroll to top
+                   const chatButton = document.querySelector('button[aria-label="AI 상담원 연결"]');
+                   if (chatButton instanceof HTMLElement) chatButton.click();
+                   else window.scrollTo({top: 0, behavior: 'smooth'});
+                }} className="shadow-xl shadow-yellow-400/20 px-10 py-4 text-lg">
                    1:1 상담 및 맞춤 제작 문의
                 </Button>
              </div>
@@ -367,7 +368,10 @@ const App: React.FC = () => {
                         <p className="text-lg font-bold text-slate-900">010-7320-5565</p>
                     </div>
                 </a>
-                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group cursor-pointer" onClick={handleChatInquiry}>
+                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group cursor-pointer" onClick={() => {
+                   const chatButton = document.querySelector('button[aria-label="AI 상담원 연결"]');
+                   if (chatButton instanceof HTMLElement) chatButton.click();
+                }}>
                     <div className="w-12 h-12 bg-[#FEE500] rounded-full flex items-center justify-center">
                         <MessageCircle className="w-6 h-6 text-slate-900" />
                     </div>
@@ -426,6 +430,9 @@ const App: React.FC = () => {
           </span>
         </Button>
       </div>
+
+      {/* --- AI Chatbot Widget --- */}
+      <ChatWidget />
 
     </div>
   );

@@ -30,15 +30,8 @@ export const translations = {
     },
     services_menu: {
       title: '우리가 할 수 있는 것들',
-      subtitle: '업종별 최적화된 AI 디자인 솔루션을 선택하세요.',
-      categories: {
-        fashion: '패션 / 의류 / 잡화',
-        food: 'F&B / 요식업',
-        ecommerce: '이커머스 / 온라인 셀러',
-        interior: '인테리어 / 부동산 중개인',
-        creator: '콘텐츠 크리에이터',
-        media: '사진 / 영상 / 음향'
-      }
+      subtitle: '원하는 영상을 선택하세요.',
+      categories: {}
     },
     studio: {
       sidebar: {
@@ -141,16 +134,9 @@ export const translations = {
       admin_notice: '* Use cases above are updated in real-time.',
     },
     services_menu: {
-      title: 'Things we can do',
-      subtitle: 'Check out our AI design solutions by industry.',
-      categories: {
-        fashion: 'Fashion / Apparel',
-        food: 'F&B / Restaurant',
-        ecommerce: 'E-commerce / Sellers',
-        interior: 'Interior / Real Estate',
-        creator: 'Content Creator',
-        media: 'Photo / Video / Audio'
-      }
+      title: 'Video Menu',
+      subtitle: 'Select the video you want.',
+      categories: {}
     },
     studio: {
       sidebar: {
@@ -254,15 +240,8 @@ export const translations = {
     },
     services_menu: {
       title: '私たちができること',
-      subtitle: '業種別のAIデザインソリューションをご確認ください。',
-      categories: {
-        fashion: 'ファッション / 衣類 / 雑貨',
-        food: 'F&B / 飲食業',
-        ecommerce: 'EC / オンラインセラー',
-        interior: 'インテリア / 不動産仲介',
-        creator: 'コンテンツクリエイター',
-        media: '写真 / 映像 / 音響'
-      }
+      subtitle: 'ご希望の動画を選択してください。',
+      categories: {}
     },
     studio: {
       sidebar: {
@@ -365,16 +344,9 @@ export const translations = {
       admin_notice: '* Các trường hợp trên được cập nhật theo thời gian thực từ trang quản trị.',
     },
     services_menu: {
-      title: 'Những việc chúng tôi có thể làm',
-      subtitle: 'Kiểm tra các giải pháp thiết kế AI theo ngành.',
-      categories: {
-        fashion: 'Thời trang / Phụ kiện',
-        food: 'Ẩm thực / F&B',
-        ecommerce: 'TMĐT / Bán hàng',
-        interior: 'Nội thất / Bất động sản',
-        creator: 'Sáng tạo nội dung',
-        media: 'Ảnh / Video / Âm thanh'
-      }
+      title: 'Menu Video',
+      subtitle: 'Chọn loại video bạn muốn.',
+      categories: {}
     },
     studio: {
       sidebar: {
@@ -465,11 +437,7 @@ export const workflowTranslations = {
     },
     step2: {
       title: '영상 종류 선택',
-      types: [
-        { label: '부동산', desc: '매물 브리핑, 인테리어' },
-        { label: '제품/커머스', desc: '상세페이지, 숏폼 광고' },
-        { label: '퍼스널 브랜딩', desc: '자기소개, 인터뷰' }
-      ]
+      types: []
     },
     step3: {
       title: '자료 업로드',
@@ -519,11 +487,7 @@ export const workflowTranslations = {
     },
     step2: {
       title: 'Select Video Type',
-      types: [
-        { label: 'Real Estate', desc: 'Property briefing, Interior' },
-        { label: 'Commerce', desc: 'Product details, Short ads' },
-        { label: 'Branding', desc: 'Self-intro, Interview' }
-      ]
+      types: []
     },
     step3: {
       title: 'Upload Assets',
@@ -573,11 +537,7 @@ export const workflowTranslations = {
     },
     step2: {
       title: '動画の種類を選択',
-      types: [
-        { label: '不動産', desc: '物件紹介、インテリア' },
-        { label: '商品/コマース', desc: '詳細ページ、ショート広告' },
-        { label: 'ブランディング', desc: '自己紹介、インタビュー' }
-      ]
+      types: []
     },
     step3: {
       title: '資料アップロード',
@@ -627,11 +587,7 @@ export const workflowTranslations = {
     },
     step2: {
       title: 'Chọn loại video',
-      types: [
-        { label: 'Bất động sản', desc: 'Giới thiệu nhà đất, Nội thất' },
-        { label: 'Thương mại', desc: 'Chi tiết sản phẩm, Quảng cáo ngắn' },
-        { label: 'Thương hiệu', desc: 'Giới thiệu bản thân, Phỏng vấn' }
-      ]
+      types: []
     },
     step3: {
       title: 'Tải lên dữ liệu',

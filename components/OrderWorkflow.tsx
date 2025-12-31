@@ -9,11 +9,8 @@ import {
   Sparkles, 
   CheckCircle2, 
   Loader2, 
-  Lock, 
   ChevronLeft,
   AlertCircle,
-  Shirt, UtensilsCrossed, ShoppingBag, Building2, MonitorPlay, Camera,
-  Check
 } from 'lucide-react';
 
 interface OrderWorkflowProps {
@@ -22,11 +19,9 @@ interface OrderWorkflowProps {
 }
 
 export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialService }) => {
-  const [step, setStep] = useState(1);
   const [isPaid, setIsPaid] = useState(false);
   
   // Selection State
-  const [selectedCategory, setSelectedCategory] = useState<string>('fashion');
   const [videoType, setVideoType] = useState<string>('');
   
   const [files, setFiles] = useState<FileList | null>(null);
@@ -45,27 +40,12 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
   const { t, wt } = useLanguage();
   const { serviceItems } = usePortfolio();
 
-  // Categories Definition (Same as ServiceMenu)
-  const categories = [
-    { id: 'fashion', label: t('services_menu.categories.fashion'), icon: Shirt },
-    { id: 'food', label: t('services_menu.categories.food'), icon: UtensilsCrossed },
-    { id: 'ecommerce', label: t('services_menu.categories.ecommerce'), icon: ShoppingBag },
-    { id: 'interior', label: t('services_menu.categories.interior'), icon: Building2 },
-    { id: 'creator', label: t('services_menu.categories.creator'), icon: MonitorPlay },
-    { id: 'media', label: t('services_menu.categories.media'), icon: Camera },
-  ];
-
   // Initialize with passed service
   useEffect(() => {
     if (initialService) {
       setVideoType(initialService);
-      // Find category of the service
-      const foundItem = serviceItems.find(item => item.title === initialService);
-      if (foundItem) {
-        setSelectedCategory(foundItem.categoryKey);
-      }
     }
-  }, [initialService, serviceItems]);
+  }, [initialService]);
 
   // Step 1: Payment Simulator
   const handlePayment = () => {
@@ -101,23 +81,19 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
     setIsSubmitting(true);
 
     // 2. Data Preparation
-    // Formspree는 기본적으로 JSON이나 FormData를 받습니다.
     const formData = new FormData();
     formData.append('email', email);
     formData.append('company', companyName);
     formData.append('phone', phoneNumber);
     formData.append('videoType', videoType);
-    formData.append('category', selectedCategory);
     formData.append('scriptTopic', scriptTopic);
     formData.append('generatedScript', generatedScript);
     if (files) {
         formData.append('fileCount', files.length.toString());
-        // Formspree 무료 플랜은 파일 업로드에 제한이 있을 수 있으나 메타데이터는 전송됩니다.
     }
 
     try {
         // Formspree로 데이터 전송
-        // 지정된 이메일: infin@naver.com
         const response = await fetch("https://formspree.io/infin@naver.com", {
             method: "POST",
             headers: {
@@ -139,9 +115,6 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
         setIsSubmitting(false);
     }
   };
-
-  // Filter items for current category
-  const currentItems = serviceItems.filter(item => item.categoryKey === selectedCategory);
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-12 px-4 animate-in fade-in slide-in-from-bottom-4">
@@ -188,7 +161,6 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
           </div>
 
           {/* Wrapper for steps 2-5 */}
-          {/* 개발 중 편의를 위해 결제 여부와 상관없이 항상 활성화 (잠금 클래스 제거됨) */}
           <div className="space-y-6 transition-all duration-500">
             
             {/* Step 2: Video Type (Enhanced) */}
@@ -198,31 +170,9 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
                 {wt('step2.title')}
               </h2>
 
-              {/* Category Tabs */}
-              <div className="flex overflow-x-auto pb-4 gap-2 mb-4 no-scrollbar">
-                {categories.map((cat) => {
-                   const Icon = cat.icon;
-                   const isActive = selectedCategory === cat.id;
-                   return (
-                     <button
-                       key={cat.id}
-                       onClick={() => setSelectedCategory(cat.id)}
-                       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border ${
-                         isActive 
-                           ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
-                           : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-                       }`}
-                     >
-                       <Icon className="w-4 h-4" />
-                       {cat.label}
-                     </button>
-                   );
-                })}
-              </div>
-
               {/* Service Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {currentItems.map((item) => {
+                {serviceItems.map((item) => {
                   const isSelected = videoType === item.title;
                   return (
                     <div 
