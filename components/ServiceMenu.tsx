@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  ArrowRight, Sparkles, Zap, PlayCircle,
+  ArrowRight, Sparkles, Zap, PlayCircle, AlertCircle
 } from 'lucide-react';
 
 interface ServiceMenuProps {
@@ -13,7 +13,7 @@ interface ServiceMenuProps {
 const getVideoEmbedInfo = (inputUrl: string) => {
   let url = inputUrl.trim();
 
-  // 0. 만약 사용자가 <iframe src="..."> 코드를 통째로 넣은 경우 src만 추출
+  // 0. <iframe src="..."> 처리
   if (url.startsWith('<iframe') && url.includes('src="')) {
     const srcMatch = url.match(/src="([^"]+)"/);
     if (srcMatch && srcMatch[1]) {
@@ -22,15 +22,27 @@ const getVideoEmbedInfo = (inputUrl: string) => {
   }
 
   // 1. Google Drive
-  // drive.google.com이 포함되어 있으면 무조건 drive 타입으로 처리 (video 태그 사용 방지)
   if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    // 폴더 링크인지 체크
+    if (url.includes('/folders/')) {
+       return { type: 'error', message: 'Folder link not supported' };
+    }
+
+    // ID 추출 시도 (다양한 패턴)
+    const patterns = [
+      /\/file\/d\/([a-zA-Z0-9_-]+)/, // /file/d/ID
+      /\/d\/([a-zA-Z0-9_-]+)/,       // /d/ID
+      /id=([a-zA-Z0-9_-]+)/          // ?id=ID
+    ];
+
     let driveId = '';
-    // /d/ID 또는 id=ID 패턴 찾기 (더 관대하게)
-    const matchPath = url.match(/\/d\/([^/?#]+)/);
-    const matchQuery = url.match(/[?&]id=([^&]+)/);
-    
-    if (matchPath && matchPath[1]) driveId = matchPath[1];
-    else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        driveId = match[1];
+        break;
+      }
+    }
 
     if (driveId) {
       return { 
@@ -38,8 +50,10 @@ const getVideoEmbedInfo = (inputUrl: string) => {
         url: `https://drive.google.com/file/d/${driveId}/preview` 
       };
     }
-    // ID 추출 실패하더라도 iframe으로 시도 (video 태그로 가면 무한 로딩됨)
-    return { type: 'drive', url: url }; 
+    
+    // ID를 못 찾았지만 드라이브 링크인 경우 -> 렌더링 시도하되 에러 가능성 높음
+    // 여기서는 사용자 경험을 위해 raw url로 시도하지 않고 에러 처리
+    return { type: 'error', message: 'Invalid Drive Link' }; 
   }
 
   // 2. YouTube
@@ -156,18 +170,33 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
             {/* Result (Main) - Video Carousel */}
             <div className="flex-1 relative rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-all border border-slate-100 aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-black">
                 {item.results.map((videoSrc, idx) => {
-                  const { type, url } = getVideoEmbedInfo(videoSrc);
+                  const embedInfo = getVideoEmbedInfo(videoSrc);
                   
+                  // Handle Error
+                  if (embedInfo.type === 'error') {
+                     return (
+                      <div key={idx} className={`absolute inset-0 w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs transition-opacity duration-1000 ${
+                          idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        }`}>
+                          <div className="text-center p-2">
+                             <AlertCircle className="w-6 h-6 mx-auto mb-1 text-slate-300" />
+                             <span>Video Unavailable</span>
+                          </div>
+                      </div>
+                     );
+                  }
+
                   // External Video (Drive, YouTube) -> iframe
-                  if (type !== 'video') {
+                  if (embedInfo.type !== 'video') {
                     return (
                       <iframe
                         key={idx}
-                        src={url}
+                        src={embedInfo.url}
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                           idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         }`}
-                        allow="autoplay"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        loading="eager"
                         // iframe은 ref에 할당하지 않음 (play() 호출 불가)
                       />
                     );
@@ -178,7 +207,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                     <video
                       key={idx}
                       ref={el => videoRefs.current[idx] = el}
-                      src={url}
+                      src={embedInfo.url}
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                         idx === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                       }`}

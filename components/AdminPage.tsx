@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
 }
 
-// 영상 링크 타입 판별 및 변환 헬퍼 (강화된 버전)
+// 영상 링크 타입 판별 및 변환 헬퍼 (초강력 버전)
 const getVideoEmbedInfo = (inputUrl: string) => {
   let url = inputUrl.trim();
 
-  // 0. 만약 사용자가 <iframe src="..."> 코드를 통째로 넣은 경우 src만 추출
+  // 0. <iframe src="..."> 처리
   if (url.startsWith('<iframe') && url.includes('src="')) {
     const srcMatch = url.match(/src="([^"]+)"/);
     if (srcMatch && srcMatch[1]) {
@@ -20,15 +20,27 @@ const getVideoEmbedInfo = (inputUrl: string) => {
   }
 
   // 1. Google Drive
-  // drive.google.com이 포함되어 있으면 무조건 drive 타입으로 처리 (video 태그 사용 방지)
   if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    // 폴더 링크인지 체크
+    if (url.includes('/folders/')) {
+       return { type: 'error', message: '폴더 링크는 사용할 수 없습니다. 개별 파일 링크를 입력해주세요.' };
+    }
+
+    // ID 추출 시도 (다양한 패턴)
+    const patterns = [
+      /\/file\/d\/([a-zA-Z0-9_-]+)/, // /file/d/ID
+      /\/d\/([a-zA-Z0-9_-]+)/,       // /d/ID
+      /id=([a-zA-Z0-9_-]+)/          // ?id=ID
+    ];
+
     let driveId = '';
-    // /d/ID 또는 id=ID 패턴 찾기 (더 관대하게)
-    const matchPath = url.match(/\/d\/([^/?#]+)/);
-    const matchQuery = url.match(/[?&]id=([^&]+)/);
-    
-    if (matchPath && matchPath[1]) driveId = matchPath[1];
-    else if (matchQuery && matchQuery[1]) driveId = matchQuery[1];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        driveId = match[1];
+        break;
+      }
+    }
 
     if (driveId) {
       return { 
@@ -36,8 +48,9 @@ const getVideoEmbedInfo = (inputUrl: string) => {
         url: `https://drive.google.com/file/d/${driveId}/preview` 
       };
     }
-    // ID 추출 실패하더라도 iframe으로 시도 (video 태그로 가면 무한 로딩됨)
-    return { type: 'drive', url: url }; 
+    
+    // ID를 못 찾았지만 드라이브 링크인 경우
+    return { type: 'error', message: '올바른 파일 링크 형식이 아닙니다.' }; 
   }
 
   // 2. YouTube
@@ -53,8 +66,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     }
   }
 
-  // 3. Direct File (Default) - .mp4 등으로 끝나는지 체크하면 좋지만, 
-  // 그 외에는 모두 video 태그로 시도.
+  // 3. Direct File (Default)
   return { type: 'video', url: url };
 };
 
@@ -195,8 +207,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                 <div className="bg-blue-50 text-blue-800 text-xs px-4 py-3 rounded-lg border border-blue-100 flex items-start gap-2 max-w-md">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
-                        <b>구글 드라이브 링크 주의사항:</b><br/>
-                        반드시 영상 파일의 권한을 <u>'링크가 있는 모든 사용자에게 공개'</u>로 설정해야 사이트에서 보입니다. (비공개 영상은 로딩되지 않습니다)
+                        <b>구글 드라이브 권한 체크:</b><br/>
+                        링크가 '제한됨'이면 재생되지 않습니다. 반드시 <u>'링크가 있는 모든 사용자에게 공개'</u>로 설정해주세요.
                     </span>
                 </div>
             </div>
@@ -277,20 +289,27 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                               
                               <div className="grid grid-cols-4 gap-2">
                                   {item.results.map((videoSrc, idx) => {
-                                    const { type, url } = getVideoEmbedInfo(videoSrc);
+                                    // videoSrc가 객체일 수도 있고 문자열일 수도 있음 (기존 데이터 호환)
+                                    const embedInfo = getVideoEmbedInfo(videoSrc);
                                     
                                     return (
                                       <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
-                                          {/* 드라이브나 유튜브는 iframe, 나머지는 video */}
-                                          {type !== 'video' ? (
+                                          {embedInfo.type === 'error' ? (
+                                             <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 p-2 text-center">
+                                                <AlertCircle className="w-6 h-6 text-red-500 mb-1" />
+                                                <p className="text-[10px] text-red-600 font-bold break-all leading-tight">
+                                                  {embedInfo.message}
+                                                </p>
+                                             </div>
+                                          ) : embedInfo.type === 'drive' || embedInfo.type === 'youtube' ? (
                                              <iframe 
-                                               src={url} 
+                                               src={embedInfo.url} 
                                                className="w-full h-full object-cover" 
                                                allowFullScreen 
                                                title={`Video ${idx}`}
                                              />
                                           ) : (
-                                             <video src={url} className="w-full h-full object-cover" muted />
+                                             <video src={embedInfo.url} className="w-full h-full object-cover" muted />
                                           )}
                                           
                                           <button 
