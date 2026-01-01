@@ -38,7 +38,8 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-const STORAGE_KEY_SERVICES = 'service_data_v6_items'; // 키 변경하여 데이터 업데이트 (v6: 5개 항목 추가)
+// 저장소 버전을 올려서 강제로 최신 상수를 불러오도록 함 (v7)
+const STORAGE_KEY_SERVICES = 'service_data_v7_items'; 
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
