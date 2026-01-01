@@ -173,7 +173,12 @@ const App: React.FC = () => {
             </div>
 
             <div className="pl-4 border-l border-slate-200">
-              <Button size="sm" variant="primary" onClick={() => handleOrder()} className="flex items-center gap-2 shadow-yellow-400/30">
+              <Button 
+                size="sm" 
+                variant="primary" 
+                onClick={() => window.open('https://smartstore.naver.com/', '_blank')} 
+                className="flex items-center gap-2 shadow-yellow-400/30"
+              >
                 {t('nav.cta')} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -223,7 +228,7 @@ const App: React.FC = () => {
               </button>
             ))}
             
-            <Button fullWidth onClick={() => handleOrder()}>
+            <Button fullWidth onClick={() => window.open('https://smartstore.naver.com/', '_blank')}>
               {t('nav.cta')}
             </Button>
           </div>
@@ -258,7 +263,7 @@ const App: React.FC = () => {
             {/* Hover Action Button */}
             <Button 
               size="lg" 
-              onClick={() => handleOrder()} 
+              onClick={() => window.open('https://smartstore.naver.com/', '_blank')} 
               className="group relative overflow-hidden animate-pulse shadow-[0_0_40px_rgba(250,204,21,0.3)] px-10 py-5 text-xl rounded-full animate-in fade-in zoom-in duration-700 delay-300 min-w-[320px]"
             >
               <span className="block transition-all duration-300 group-hover:-translate-y-[150%]">

@@ -434,28 +434,19 @@ export const workflowTranslations = {
   ko: {
     back: '뒤로가기',
     title: '영상 제작 신청',
-    subtitle: 'AI가 기획부터 편집까지, 단돈 9,900원에 완료합니다.',
+    subtitle: '정보를 입력하고 결제하면 24시간 내에 완성됩니다.',
     step1: {
-      alert: '테스트 결제가 완료되었습니다. (실제 청구되지 않음)',
-      title: '결제하기',
-      desc_title: '9,900원 결제',
-      desc: '점심 값도 안되는 비용으로<br/><b>고퀄리티 AI 영상</b>을 받아보세요.',
-      btn: '간편 결제하기',
-      warn: '테스트 모드: 실제 결제되지 않습니다.',
-      done: '결제 완료'
-    },
-    step2: {
       title: '영상 종류 선택',
       types: []
     },
-    step3: {
+    step2: {
       title: '자료 업로드',
       desc: '영상에 들어갈 사진이나 영상을 올려주세요.',
       drop_selected: '개 파일 선택됨',
       drop_empty: '여기를 클릭하여 파일 업로드',
       drop_drag: '또는 파일을 여기로 드래그하세요'
     },
-    step4: {
+    step3: {
       title: 'AI 대본 생성 (Beta)',
       desc: '어떤 내용으로 영상을 만들고 싶으신가요?',
       label_topic: '주제/키워드',
@@ -463,7 +454,7 @@ export const workflowTranslations = {
       label_result: 'AI가 작성한 시나리오',
       empty_guide: '주제를 입력하고 버튼을 누르면 AI가 대본을 써줍니다.'
     },
-    step5: {
+    step4: {
       title: '신청자 정보 입력',
       label_email: '이메일 주소',
       label_company: '회사/단체명',
@@ -474,38 +465,34 @@ export const workflowTranslations = {
       err_email: '올바른 이메일 형식이 아닙니다.',
       err_common: '모든 항목을 입력해주세요.'
     },
+    step5: {
+      title: '결제 및 신청완료',
+      desc: '작성하신 정보로 주문을 접수하고 결제를 진행합니다.',
+      btn: '9,900원 결제하고 신청하기',
+      alert: '테스트 결제가 완료되었습니다.',
+      warn: '* 테스트 모드: 실제 비용이 청구되지 않습니다.'
+    },
     submit: {
-      alert: '신청이 완료되었습니다! 확인 메일이 발송됩니다.',
-      locked: '결제 후 신청 가능',
-      active: '제작 신청 완료하기',
-      sending: '전송 중...'
+      alert: '주문이 성공적으로 접수되었습니다!',
+      sending: '주문 접수 중...'
     }
   },
   en: {
     back: 'Back',
     title: 'Order Video',
-    subtitle: 'AI handles planning to editing, all for just $9.',
+    subtitle: 'Fill in the info and pay, get it in 24 hours.',
     step1: {
-      alert: 'Test payment complete. (No actual charge)',
-      title: 'Payment',
-      desc_title: '$9 Payment',
-      desc: 'Get high-quality AI video<br/>for the price of two coffees.',
-      btn: 'Pay Now',
-      warn: 'Test Mode: No actual charge.',
-      done: 'Payment Complete'
-    },
-    step2: {
       title: 'Select Video Type',
       types: []
     },
-    step3: {
+    step2: {
       title: 'Upload Assets',
       desc: 'Upload photos or videos to be included.',
       drop_selected: 'files selected',
       drop_empty: 'Click here to upload files',
       drop_drag: 'or drag and drop files here'
     },
-    step4: {
+    step3: {
       title: 'AI Script Generation (Beta)',
       desc: 'What is the video about?',
       label_topic: 'Topic/Keywords',
@@ -513,7 +500,7 @@ export const workflowTranslations = {
       label_result: 'AI Generated Script',
       empty_guide: 'Enter a topic and click the button to generate a script.'
     },
-    step5: {
+    step4: {
       title: 'Applicant Info',
       label_email: 'Email Address',
       label_company: 'Company Name',
@@ -524,38 +511,34 @@ export const workflowTranslations = {
       err_email: 'Invalid email format.',
       err_common: 'Please fill in all fields.'
     },
+    step5: {
+      title: 'Payment & Submit',
+      desc: 'Proceed with payment to complete your order.',
+      btn: 'Pay $9 & Submit Order',
+      alert: 'Test payment completed.',
+      warn: '* Test Mode: No actual charge.'
+    },
     submit: {
-      alert: 'Order Submitted! Confirmation email sent.',
-      locked: 'Pay to Unlock',
-      active: 'Complete Order',
-      sending: 'Sending...'
+      alert: 'Order successfully submitted!',
+      sending: 'Submitting...'
     }
   },
   ja: {
     back: '戻る',
     title: '動画制作申し込み',
-    subtitle: 'AIが企画から編集まで、たった990円で完了します。',
+    subtitle: '情報を入力して決済すれば、24時間以内に完了します。',
     step1: {
-      alert: 'テスト決済が完了しました。（実際の請求はありません）',
-      title: '決済',
-      desc_title: '990円 決済',
-      desc: 'コーヒー2杯分の価格で<br/>高品質なAI動画を受け取ってください。',
-      btn: '今すぐ支払う',
-      warn: 'テストモード：実際に課金されません。',
-      done: '決済完了'
-    },
-    step2: {
       title: '動画の種類を選択',
       types: []
     },
-    step3: {
+    step2: {
       title: '資料アップロード',
       desc: '動画に使用する写真や映像をアップロードしてください。',
       drop_selected: '個のファイルを選択',
       drop_empty: 'ここをクリックしてファイルをアップロード',
       drop_drag: 'またはファイルをここにドラッグ'
     },
-    step4: {
+    step3: {
       title: 'AI台本生成 (Beta)',
       desc: 'どのような内容の動画を作成しますか？',
       label_topic: 'トピック/キーワード',
@@ -563,7 +546,7 @@ export const workflowTranslations = {
       label_result: 'AIが作成したシナリオ',
       empty_guide: 'トピックを入力してボタンを押すと、AIが台本を作成します。'
     },
-    step5: {
+    step4: {
       title: '申込者情報',
       label_email: 'メールアドレス',
       label_company: '会社・団体名',
@@ -574,38 +557,34 @@ export const workflowTranslations = {
       err_email: 'メールアドレスの形式が正しくありません。',
       err_common: 'すべての項目を入力してください。'
     },
+    step5: {
+      title: '決済・申請完了',
+      desc: '入力された情報で注文を受け付け、決済を進行します。',
+      btn: '990円で決済して申請する',
+      alert: 'テスト決済が完了しました。',
+      warn: '* テストモード：実際に課金されません。'
+    },
     submit: {
-      alert: '申し込みが完了しました！確認メールが送信されます。',
-      locked: '決済後に申請可能',
-      active: '制作を申し込む',
+      alert: '注文が正常に受け付けられました！',
       sending: '送信中...'
     }
   },
   vi: {
     back: 'Quay lại',
     title: 'Đặt hàng Video',
-    subtitle: 'AI xử lý từ lập kế hoạch đến chỉnh sửa, chỉ với 190.000₫.',
+    subtitle: 'Điền thông tin và thanh toán, nhận video trong 24h.',
     step1: {
-      alert: 'Thanh toán thử nghiệm hoàn tất. (Không trừ tiền thật)',
-      title: 'Thanh toán',
-      desc_title: 'Thanh toán 190.000₫',
-      desc: 'Nhận video AI chất lượng cao<br/>chỉ với giá hai ly cà phê.',
-      btn: 'Thanh toán ngay',
-      warn: 'Chế độ thử nghiệm: Không tính phí thực.',
-      done: 'Thanh toán hoàn tất'
-    },
-    step2: {
       title: 'Chọn loại video',
       types: []
     },
-    step3: {
+    step2: {
       title: 'Tải lên dữ liệu',
       desc: 'Tải lên ảnh hoặc video để đưa vào video.',
       drop_selected: 'tệp đã chọn',
       drop_empty: 'Nhấn vào đây để tải lên tệp',
       drop_drag: 'hoặc kéo thả tệp vào đây'
     },
-    step4: {
+    step3: {
       title: 'Tạo kịch bản AI (Beta)',
       desc: 'Bạn muốn làm video về nội dung gì?',
       label_topic: 'Chủ đề/Từ khóa',
@@ -613,7 +592,7 @@ export const workflowTranslations = {
       label_result: 'Kịch bản do AI tạo',
       empty_guide: 'Nhập chủ đề và nhấn nút để tạo kịch bản.'
     },
-    step5: {
+    step4: {
       title: 'Thông tin người đăng ký',
       label_email: 'Địa chỉ Email',
       label_company: 'Tên công ty/Tổ chức',
@@ -624,10 +603,15 @@ export const workflowTranslations = {
       err_email: 'Định dạng email không hợp lệ.',
       err_common: 'Vui lòng điền đầy đủ thông tin.'
     },
+    step5: {
+      title: 'Thanh toán & Hoàn tất',
+      desc: 'Tiến hành thanh toán để hoàn tất đơn hàng.',
+      btn: 'Thanh toán 190.000₫ & Gửi',
+      alert: 'Thanh toán thử nghiệm hoàn tất.',
+      warn: '* Chế độ thử nghiệm: Không tính phí thực.'
+    },
     submit: {
-      alert: 'Đã gửi đơn hàng! Email xác nhận đã được gửi.',
-      locked: 'Thanh toán để mở khóa',
-      active: 'Hoàn tất đặt hàng',
+      alert: 'Đã gửi đơn hàng thành công!',
       sending: 'Đang gửi...'
     }
   }
