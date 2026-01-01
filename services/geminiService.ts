@@ -1,124 +1,131 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Fixed: API key must be from process.env.API_KEY
+// Initialize Gemini AI Client
+// process.env.API_KEY must be set in the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-// 서비스 아이템 인터페이스 (Context 의존성 제거를 위해 내부 정의)
-interface ServiceItemPartial {
-  title: string;
-  desc: string;
-  badge?: string;
-}
+const MODEL_NAME = 'gemini-3-flash-preview';
 
-// --- 동적 시스템 프롬프트 생성 함수 ---
-const getSystemInstruction = (services: ServiceItemPartial[]) => {
-  // 서비스 목록을 텍스트로 변환
-  const servicesListText = services.map((item, index) => {
-    return `${index + 1}. ${item.title} ${item.badge ? `[${item.badge}]` : ''}
-   - 설명: ${item.desc}`;
-  }).join('\n');
-
-  return `
-당신은 '9900Studio'의 AI 전문 상담원입니다. 
-방문자에게 친절하고 전문적인 태도로 응대하며, 아래 **실시간 업데이트된 서비스 정보**를 바탕으로 질문에 답변하세요.
-한국어로 답변하세요.
-
-[서비스 핵심 정보]
-- 서비스명: 9900Studio (구구공공 스튜디오)
-- 가격: 모든 영상 제작 단돈 9,900원 (VAT 포함)
-- 제작 속도: 당일 제작 완료 (24시간 이내)
-- 환불 정책: 결과물 불만족 시 100% 환불 보장
-- 연락처: 010-7320-5565 / inifin@naver.com
-- 위치: 서울 강서구 화곡로 129 305호
-
-[현재 제작 가능한 영상 종류 (실시간 목록)]
-${servicesListText}
-
-[주문 프로세스]
-1. 사이트에서 '영상 제작 신청' 또는 '스튜디오 시작하기' 버튼 클릭
-2. 원하는 영상 종류 선택
-3. 가지고 있는 사진/영상 자료 업로드
-4. AI 대본 생성 (선택 사항)
-5. 결제 및 신청 완료 (현재 테스트 결제 모드 지원)
-
-[답변 가이드라인]
-- 사용자가 영상 제작을 원하면 '주문하기' 페이지로 안내하거나 우측 상단의 버튼을 누르라고 안내하세요.
-- 가격이나 퀄리티를 의심하면 "9,900원에 기획부터 편집까지 AI가 처리하여 비용을 낮췄음"을 강조하세요.
-- 목록에 없는 서비스를 문의하면, "현재 목록에는 없지만 1:1 맞춤 제작 문의를 통해 가능합니다"라고 안내하세요.
-- 인사를 할 때는 "안녕하세요! 9,900원 AI 영상 제작소입니다. 무엇을 도와드릴까요?"라고 시작하세요.
-- 답변은 3문장 이내로 간결하게 작성하세요.
-`;
+export const generateText = async () => {
+  return "AI 기능이 활성화되었습니다.";
 };
 
-export const createChatSession = (services: ServiceItemPartial[]) => {
-  return ai.chats.create({
-    model: 'gemini-3-flash-preview',
-    config: {
-      temperature: 0.7,
-      systemInstruction: getSystemInstruction(services),
-    }
-  });
-};
-
+// Generate a short video script based on product name and type
 export const generateSampleScript = async (productName: string, type: string): Promise<string> => {
   try {
     const prompt = `
-      You are a professional video copywriter for short-form marketing videos (Reels, TikTok, Shorts).
+      제품명: ${productName}
+      영상 종류: ${type}
       
-      Task: Create a concise, high-converting 15-second video script for a "${type}" named "${productName}".
+      위 정보를 바탕으로 15초 숏폼 영상 시나리오를 작성해주세요.
+      다음 3단계 구성을 따라주세요:
+      1. Scene 1 (0-3초): 시선을 사로잡는 후킹
+      2. Scene 2 (3-10초): 제품의 핵심 특징과 사용 모습
+      3. Scene 3 (10-15초): 브랜드 강조 및 마무리
       
-      Structure the output exactly like this:
-      [Title]: catchy title
-      [Scene 1]: Visual description (Audio: script line)
-      [Scene 2]: Visual description (Audio: script line)
-      [Scene 3]: Visual description (Audio: script line)
-      [CTA]: Final call to action
-      
-      Tone: Professional but friendly. Korean language.
-      Keep it short.
+      각 씬마다 [화면 설명]과 [내레이션/자막]을 명확히 구분해서 한국어로 작성해주세요.
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: MODEL_NAME,
       contents: prompt,
       config: {
         temperature: 0.7,
+        // Removed maxOutputTokens to avoid token limits with thinking models and follow guidelines
       }
     });
 
-    return response.text || "죄송합니다. 스크립트 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    return response.text || "시나리오를 생성할 수 없습니다. 다시 시도해주세요.";
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "AI 서비스 연결 상태가 좋지 않습니다. 잠시 후 다시 시도해주세요.";
+    console.error("Gemini API Error (generateSampleScript):", error);
+    return "죄송합니다. AI 서비스 연결에 실패했습니다. (API Key 확인 필요)";
   }
 };
 
+// Generate a structural plan for the order workflow
 export const generateOrderScript = async (topic: string): Promise<string> => {
   try {
     const prompt = `
-      You are a specialized copywriter for short-form video ads.
-      Task: Create a high-impact script for "${topic}" in Korean.
+      주제: ${topic}
       
-      Constraints:
-      - Total length: Around 150 Korean characters.
-      - Structure: 
-        1. Hook (First 3 seconds, attention grabber)
-        2. Feature Description (Core benefit)
-        3. Call To Action (Strong closing)
-      - Format: Just the script text, separated by line breaks for each section. No "[Scene]" labels needed, just the spoken content and brief visual cues in parentheses.
+      이 주제로 제작할 30초 내외의 바이럴 광고 영상 기획안을 작성해주세요.
+      다음 항목을 포함해야 합니다:
+      1. 타겟 오디언스
+      2. 핵심 메시지 (Key Message)
+      3. 구성안 (도입 - 전개 - 결말)
+      
+      간결하고 명확한 문체로 한국어로 작성해주세요.
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: MODEL_NAME,
       contents: prompt,
       config: {
-        temperature: 0.8,
+        temperature: 0.7,
+        // Removed maxOutputTokens to avoid token limits with thinking models and follow guidelines
       }
     });
 
-    return response.text || "AI 스크립트 생성에 실패했습니다.";
+    return response.text || "기획안을 생성할 수 없습니다.";
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "AI 서비스 연결 상태가 좋지 않습니다.";
+    console.error("Gemini API Error (generateOrderScript):", error);
+    return "AI 서비스 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
+  }
+};
+
+// Create a chat session with portfolio context
+export const createChatSession = (services: any[]) => {
+  // Construct context from service items
+  const serviceContext = services.map((s: any) => 
+    `- 상품명: ${s.title}\n  설명: ${s.desc}\n  특징: ${s.badge || 'Basic'}`
+  ).join('\n\n');
+
+  const systemInstruction = `
+    당신은 '9,900원 AI 영상 제작소 (9900Studio)'의 전문 AI 상담원입니다.
+    
+    [역할]
+    고객의 질문에 친절하고 명확하게 답변하며, 우리 서비스의 장점(저렴한 가격, 빠른 속도, 고퀄리티)을 어필합니다.
+    
+    [서비스 핵심 정보]
+    - 가격: 모든 영상 제작 9,900원 (VAT 포함)
+    - 제작 기간: 주문 후 24시간 이내 완성
+    - 프로세스: 주문 접수 -> 자료 업로드 -> AI 제작 -> 결과물 전달
+    
+    [제공 서비스 목록]
+    ${serviceContext}
+    
+    [응대 가이드]
+    1. 한국어로 대화하세요.
+    2. 답변은 3~4문장 이내로 간결하게 작성하세요.
+    3. 영상 제작과 관련 없는 질문에는 정중하게 답변을 거절하고 서비스 관련 대화를 유도하세요.
+    4. 가격이나 제작 기간에 대한 확신을 심어주세요.
+  `;
+
+  try {
+    const chat = ai.chats.create({
+      model: MODEL_NAME,
+      config: {
+        systemInstruction: systemInstruction,
+      },
+    });
+
+    return {
+      sendMessage: async ({ message }: { message: string }) => {
+        try {
+          const result = await chat.sendMessage({ message });
+          return { text: result.text };
+        } catch (error) {
+          console.error("Chat Message Error:", error);
+          return { text: "죄송합니다. 잠시 후 다시 말씀해 주시겠어요?" };
+        }
+      }
+    };
+  } catch (error) {
+    console.error("Chat Session Create Error:", error);
+    return {
+      sendMessage: async () => ({
+        text: "시스템 오류: AI 상담원을 연결할 수 없습니다. (API Key 또는 네트워크 확인 필요)"
+      })
+    };
   }
 };

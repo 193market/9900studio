@@ -1,206 +1,144 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { INITIAL_SERVICE_ITEMS } from '../constants';
-import { db, isFirebaseReady } from '../services/firebase';
-import { ref, onValue, set } from 'firebase/database';
 
-// 서비스 아이템 타입
+// 서비스 아이템 타입 정의
 export interface ServiceItem {
   id: number;
   categoryKey: string;
   title: string;
   desc: string;
   inputs: string[]; 
-  results: string[]; // 다중 비디오 URL 배열
+  results: string[]; // 다중 비디오 URL 지원
   badge: string;
   
-  // 작업 가이드 (내부용)
-  aiSite?: string;    // 사용한 AI 사이트/툴 이름
-  aiPrompt?: string;  // 사용한 프롬프트
+  // 메타데이터
+  aiSite?: string;
+  aiPrompt?: string;
 
-  // 하위 호환성
+  // 하위 호환성 (단일 결과)
   result?: string; 
 }
 
 interface PortfolioContextType {
   serviceItems: ServiceItem[];
   adminPassword: string;
-  isLiveMode: boolean; // Firebase 연동 여부
   
-  // 서비스 관리용 함수
+  // 액션 함수들
   updateServiceItem: (id: number, field: keyof ServiceItem, value: any) => void;
-  // 비디오 파일들 추가 (다중 업로드)
   addServiceVideos: (id: number, files: FileList) => Promise<void>;
-  // 비디오 URL 직접 추가
   addServiceVideoUrl: (id: number, url: string) => void;
-  // 비디오 삭제
   removeServiceVideo: (id: number, videoIndex: number) => void;
-
   updatePassword: (newPassword: string) => void;
   resetData: () => void;
 }
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-// LocalStorage Keys (Backup & Offline use)
-const STORAGE_KEY_SERVICES = 'service_data_v7_items'; 
+// LocalStorage Keys
+const STORAGE_KEY_SERVICES = 'service_data_v8_items'; 
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
 export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
-  // 1. 데이터 State (초기값은 LocalStorage 또는 Constant)
+  // 1. 서비스 데이터 State (초기화 시 LocalStorage 확인)
   const [serviceItems, setServiceItems] = useState<ServiceItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_SERVICES);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return INITIAL_SERVICE_ITEMS;
-      }
-    }
-    return INITIAL_SERVICE_ITEMS;
-  });
-
-  // 2. 비밀번호 State
-  const [adminPassword, setAdminPassword] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEY_PW) || DEFAULT_PASSWORD;
-  });
-
-  // --- Firebase 실시간 동기화 (Mount 시) ---
-  useEffect(() => {
-    if (isFirebaseReady && db) {
-      setIsLiveMode(true);
-      const servicesRef = ref(db, 'serviceItems');
-      
-      // DB 데이터 구독 (실시간 수신)
-      const unsubscribe = onValue(servicesRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          // 배열이나 객체 형태로 올 수 있으므로 파싱
-          const items = Array.isArray(data) ? data : Object.values(data);
-          // 마이그레이션 로직 포함하여 상태 업데이트
-          const cleanItems = items.map((item: any) => ({
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_SERVICES);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // 데이터 구조 마이그레이션 (results 배열이 없는 구버전 데이터 대비)
+        return parsed.map((item: any) => ({
              ...item,
              results: item.results || (item.result ? [item.result] : []),
              aiSite: item.aiSite || '',
              aiPrompt: item.aiPrompt || ''
-          }));
-          setServiceItems(cleanItems);
-          // 로컬에도 백업 저장
-          localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(cleanItems));
-        } else {
-          // DB가 비어있으면 초기값으로 세팅 (최초 1회)
-          set(ref(db, 'serviceItems'), INITIAL_SERVICE_ITEMS);
-        }
-      });
-
-      return () => unsubscribe();
-    }
-  }, []);
-
-  // --- 로컬 저장소 백업 (Firebase 없을 때 or 백업용) ---
-  useEffect(() => {
-    if (!isLiveMode) {
-      try {
-        localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(serviceItems));
-      } catch (e) {
-        console.error("Storage full");
+        }));
       }
+    } catch (e) {
+      console.error("Failed to load from storage", e);
     }
-  }, [serviceItems, isLiveMode]);
+    return INITIAL_SERVICE_ITEMS;
+  });
+
+  // 2. 관리자 비밀번호 State
+  const [adminPassword, setAdminPassword] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEY_PW) || DEFAULT_PASSWORD;
+  });
+
+  // --- LocalStorage 동기화 (값이 변할 때마다 저장) ---
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(serviceItems));
+    } catch (e) {
+      console.error("Storage save failed", e);
+    }
+  }, [serviceItems]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_PW, adminPassword);
   }, [adminPassword]);
 
 
-  // --- 데이터 업데이트 로직 (Firebase 우선) ---
+  // --- CRUD 기능 구현 ---
   
-  const saveToCloud = (newItems: ServiceItem[]) => {
-    if (isLiveMode && db) {
-      set(ref(db, 'serviceItems'), newItems).catch(err => {
-        console.error("Cloud save failed:", err);
-        alert("클라우드 저장 실패! 네트워크를 확인하세요.");
-      });
-    }
-  };
-
   const updateServiceItem = (id: number, field: keyof ServiceItem, value: any) => {
-    const newItems = serviceItems.map(item => 
+    setServiceItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
-    );
-    setServiceItems(newItems);
-    saveToCloud(newItems);
+    ));
   };
 
   const addServiceVideos = async (id: number, files: FileList): Promise<void> => {
-    // 경고: 클라우드 모드일 때 파일 직접 업로드는 데이터베이스 용량을 초과할 수 있음
-    if (isLiveMode && confirm("주의: 영상 파일을 직접 업로드하면 데이터베이스 용량이 빠르게 찹니다.\n가급적 유튜브/구글드라이브 링크를 사용하는 것을 권장합니다.\n\n계속 하시겠습니까?") === false) {
-      return;
-    }
-
+    // 로컬 스토리지 용량 한계로 인해 파일을 Base64로 저장하는 것은 매우 제한적임.
+    // 3MB 이하 파일만 허용하거나 경고 필요.
     const newVideos: string[] = [];
-    let skippedCount = 0;
-
+    
     const readFile = (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        if (file.size > 5 * 1024 * 1024) { // 5MB Limit
-          skippedCount++;
-          resolve(''); 
-          return;
+      return new Promise((resolve) => {
+        if (file.size > 3 * 1024 * 1024) { 
+           console.warn("File too large for local storage");
+           resolve(''); // 3MB 초과 시 스킵
+           return;
         }
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
+        reader.onerror = () => resolve('');
         reader.readAsDataURL(file);
       });
     };
 
     const promises = Array.from(files).map(readFile);
+    const results = await Promise.all(promises);
     
-    try {
-      const results = await Promise.all(promises);
-      results.forEach(res => {
-        if (res) newVideos.push(res);
-      });
+    results.forEach(res => {
+      if (res) newVideos.push(res);
+    });
 
-      if (skippedCount > 0) {
-        alert(`${skippedCount}개의 파일이 5MB를 초과하여 제외되었습니다.`);
-      }
-
-      if (newVideos.length > 0) {
-        const newItems = serviceItems.map(item => {
-          if (item.id !== id) return item;
-          return { ...item, results: [...item.results, ...newVideos] };
-        });
-        setServiceItems(newItems);
-        saveToCloud(newItems);
-      }
-    } catch (error) {
-      alert("파일 처리 중 오류가 발생했습니다.");
+    if (newVideos.length > 0) {
+      setServiceItems(prev => prev.map(item => {
+        if (item.id !== id) return item;
+        return { ...item, results: [...item.results, ...newVideos] };
+      }));
+    } else {
+      alert("파일이 너무 크거나 처리할 수 없습니다. URL 추가를 권장합니다.");
     }
   };
 
   const addServiceVideoUrl = (id: number, url: string) => {
     if (!url.trim()) return;
-    const newItems = serviceItems.map(item => {
+    setServiceItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       return { ...item, results: [...item.results, url] };
-    });
-    setServiceItems(newItems);
-    saveToCloud(newItems);
+    }));
   };
 
   const removeServiceVideo = (id: number, videoIndex: number) => {
-    const newItems = serviceItems.map(item => {
+    setServiceItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       const newResults = [...item.results];
       newResults.splice(videoIndex, 1);
       return { ...item, results: newResults };
-    });
-    setServiceItems(newItems);
-    saveToCloud(newItems);
+    }));
   };
 
   const updatePassword = (newPassword: string) => {
@@ -208,18 +146,11 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const resetData = () => {
-    if (window.confirm('모든 데이터를 초기 상태로 되돌리시겠습니까?')) {
-      const resetItems = INITIAL_SERVICE_ITEMS;
-      setServiceItems(resetItems);
-      setAdminPassword(DEFAULT_PASSWORD);
-      
-      if (isLiveMode && db) {
-        set(ref(db, 'serviceItems'), resetItems);
-      } else {
+    if (confirm("정말 초기화하시겠습니까? 모든 변경사항이 사라집니다.")) {
+        setServiceItems(INITIAL_SERVICE_ITEMS);
+        setAdminPassword(DEFAULT_PASSWORD);
         localStorage.removeItem(STORAGE_KEY_SERVICES);
-      }
-      localStorage.removeItem(STORAGE_KEY_PW);
-      alert('초기화되었습니다.');
+        localStorage.removeItem(STORAGE_KEY_PW);
     }
   };
 
@@ -227,7 +158,6 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     <PortfolioContext.Provider value={{ 
       serviceItems,
       adminPassword,
-      isLiveMode,
       updateServiceItem,
       addServiceVideos,
       addServiceVideoUrl,

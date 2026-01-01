@@ -8,7 +8,6 @@ import { ServiceMenu } from './components/ServiceMenu';
 import { ChatWidget } from './components/ChatWidget';
 import { useLanguage } from './contexts/LanguageContext';
 import { 
-  CheckCircle2, 
   ArrowRight, 
   Menu, 
   X, 
@@ -17,11 +16,13 @@ import {
   MessageCircle,
   Phone,
   Zap,
-  Lock,
   Globe,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  CheckCircle2
 } from 'lucide-react';
+
+// Firebase import 절대 금지
 
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,9 +31,8 @@ const App: React.FC = () => {
   const [initialService, setInitialService] = useState('');
   const { t, language, setLanguage } = useLanguage();
 
-  // URL 경로 체크하여 관리자 페이지 진입 (/9900 또는 /admin)
+  // URL 경로 체크 (Admin 진입)
   useEffect(() => {
-    // pathname에서 마지막 슬래시 제거 후 비교
     const path = window.location.pathname.replace(/\/$/, '');
     if (path === '/9900' || path === '/admin') {
       setView('admin');
@@ -89,40 +89,27 @@ const App: React.FC = () => {
   const handleBackToLanding = () => {
     setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // URL이 /9900 또는 /admin으로 남아있을 수 있으므로 pushState로 정리
     if (window.location.pathname.includes('/9900') || window.location.pathname.includes('/admin')) {
       window.history.pushState({}, '', '/');
     }
   };
 
-  // --- View Routing ---
-  if (view === 'order') {
-    return <OrderWorkflow onBack={handleBackToLanding} initialService={initialService} />;
-  }
+  // --- 화면 라우팅 ---
+  if (view === 'order') return <OrderWorkflow onBack={handleBackToLanding} initialService={initialService} />;
+  if (view === 'admin') return <AdminPage onBack={handleBackToLanding} />;
+  if (view === 'terms') return <TermsPage onBack={handleBackToLanding} />;
+  if (view === 'privacy') return <PrivacyPage onBack={handleBackToLanding} />;
 
-  if (view === 'admin') {
-    return <AdminPage onBack={handleBackToLanding} />;
-  }
-
-  if (view === 'terms') {
-    return <TermsPage onBack={handleBackToLanding} />;
-  }
-
-  if (view === 'privacy') {
-    return <PrivacyPage onBack={handleBackToLanding} />;
-  }
-
-  // Define Nav Links (Portfolio removed)
+  // 네비게이션 링크
   const navLinks = [
     { label: t('nav.services'), id: 'services' },
     { label: t('nav.pricing'), id: 'pricing' },
   ];
 
-  // --- Landing Page View ---
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 pb-24 md:pb-0 relative">
       
-      {/* --- Header --- */}
+      {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 h-16 transition-all">
         <div className="container mx-auto px-4 h-full flex items-center justify-between max-w-screen-xl">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -146,7 +133,6 @@ const App: React.FC = () => {
               </button>
             ))}
             
-            {/* Language Dropdown (Desktop) */}
             <div className="relative">
               <button 
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
@@ -184,18 +170,16 @@ const App: React.FC = () => {
             </div>
           </nav>
 
-          {/* Mobile Menu Toggle & Language */}
+          {/* Mobile Menu Toggle */}
           <div className="flex items-center gap-2 md:hidden">
-            <div className="relative">
-              <button 
-                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
-                className="flex items-center gap-1 p-2 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium text-slate-600"
-              >
-                 <Globe className="w-5 h-5" />
-              </button>
-
-              {isLangMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-32 bg-white border border-slate-100 rounded-xl shadow-lg py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+            <button 
+              onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
+              className="p-2 text-slate-600"
+            >
+               <Globe className="w-5 h-5" />
+            </button>
+            {isLangMenuOpen && (
+                <div className="absolute top-14 right-14 w-32 bg-white border border-slate-100 rounded-xl shadow-lg py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
                   {languages.map((langOption) => (
                     <button
                       key={langOption.code}
@@ -206,8 +190,7 @@ const App: React.FC = () => {
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+            )}
 
             <button className="p-2 text-slate-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
@@ -215,7 +198,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Nav Dropdown */}
+        {/* Mobile Nav */}
         {isMenuOpen && (
           <div className="absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 md:hidden flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
             {navLinks.map((link) => (
@@ -227,7 +210,6 @@ const App: React.FC = () => {
                 {link.label}
               </button>
             ))}
-            
             <Button fullWidth onClick={() => window.open('https://smartstore.naver.com/cheda/products/12907044385', '_blank')}>
               {t('nav.cta')}
             </Button>
@@ -236,10 +218,8 @@ const App: React.FC = () => {
       </header>
 
       <main className="pt-16">
-        
-        {/* --- Section 1: Hero --- */}
+        {/* Hero Section */}
         <section className="relative py-20 md:py-28 bg-slate-900 overflow-hidden text-white">
-           {/* Background Effect */}
            <div className="absolute inset-0 overflow-hidden pointer-events-none">
              <div className="absolute -top-40 -right-20 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[100px] opacity-70"></div>
              <div className="absolute top-40 -left-20 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] opacity-60"></div>
@@ -260,7 +240,6 @@ const App: React.FC = () => {
               {t('hero.desc')}<span className="text-white font-bold border-b-2 border-yellow-400">{t('hero.desc_price')}</span>{t('hero.desc_suffix')}
             </p>
 
-            {/* Hover Action Button */}
             <Button 
               size="lg" 
               onClick={() => window.open('https://smartstore.naver.com/cheda/products/12907044385', '_blank')} 
@@ -280,16 +259,9 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* --- Section 3: Service Menu (Main Showcase) --- */}
+        {/* Services Menu */}
         <section id="services" className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
-          {/* Subtle Grid Background for Trust/Tech feel */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
-               style={{ backgroundImage: 'radial-gradient(#1e293b 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-          </div>
-          
-          {/* Professional Gradient Accent */}
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
-
           <div className="container mx-auto px-4 max-w-screen-xl relative z-10">
              <div className="text-center mb-20">
                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4">
@@ -299,39 +271,19 @@ const App: React.FC = () => {
                <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
                  {t('services_menu.title')}
                </h2>
-               
                <p className="text-slate-500 mb-4 text-sm md:text-base font-medium">
                  {t('services_menu.description')}
                </p>
-
                <div className="w-24 h-1.5 bg-yellow-400 mx-auto mb-6 rounded-full"></div>
-               <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto whitespace-pre-line leading-relaxed">
-                 {t('services_menu.subtitle')}
-               </p>
              </div>
              
              <ServiceMenu onOrder={handleOrder} />
-             
-             <div className="mt-16 text-center">
-                <p className="text-slate-500 mb-6 text-sm">원하는 서비스가 없으신가요? 1:1 맞춤 제작도 가능합니다.</p>
-                <Button size="lg" onClick={() => { 
-                   // Open chat widget if possible, otherwise scroll to top
-                   const chatButton = document.querySelector('button[aria-label="AI 상담원 연결"]');
-                   if (chatButton instanceof HTMLElement) chatButton.click();
-                   else window.scrollTo({top: 0, behavior: 'smooth'});
-                }} className="shadow-xl shadow-yellow-400/20 px-10 py-4 text-lg">
-                   1:1 상담 및 맞춤 제작 문의
-                </Button>
-             </div>
-
           </div>
         </section>
 
-        {/* --- Section 4: Pricing --- */}
+        {/* Pricing */}
         <section id="pricing" className="py-24 bg-slate-900 text-white relative overflow-hidden">
-           {/* Decorative elements */}
-           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-
+          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="container mx-auto px-4 max-w-screen-xl text-center relative z-10">
              <h2 className="text-3xl md:text-5xl font-black mb-8 leading-tight">
                {t('pricing.title_prefix')}<br/>
@@ -357,31 +309,20 @@ const App: React.FC = () => {
                 </div>
              </div>
 
-             <div className="flex flex-col items-center gap-2">
-                <Button size="lg" onClick={() => handleOrder()} className="px-12 py-4 text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                  {t('pricing.cta')}
-                </Button>
-                <p className="text-slate-400 text-sm mt-4 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> 
-                  {t('pricing.guarantee')}
-                </p>
-             </div>
+             <Button size="lg" onClick={() => handleOrder()} className="px-12 py-4 text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+               {t('pricing.cta')}
+             </Button>
           </div>
         </section>
 
-        {/* --- Section 6: Contact (Order Form) --- */}
+        {/* Contact */}
         <section id="contact" className="py-20 bg-white border-t border-slate-200">
            <div className="container mx-auto px-4 max-w-screen-md text-center">
-             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
-               {t('contact.title')}
-             </h2>
-             <p className="text-slate-600 mb-10 text-lg whitespace-pre-line">
-               {t('contact.desc')}
-             </p>
-
+             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">{t('contact.title')}</h2>
+             <p className="text-slate-600 mb-10 text-lg whitespace-pre-line">{t('contact.desc')}</p>
              <div className="grid md:grid-cols-2 gap-4 mb-8">
-                <a href="tel:010-7320-5565" className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-yellow-100 transition-colors">
+                <a href="tel:010-7320-5565" className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 transition-all flex items-center gap-4 group">
+                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-yellow-100">
                         <Phone className="w-6 h-6 text-slate-400 group-hover:text-yellow-600" />
                     </div>
                     <div className="text-left">
@@ -389,7 +330,7 @@ const App: React.FC = () => {
                         <p className="text-lg font-bold text-slate-900">010-7320-5565</p>
                     </div>
                 </a>
-                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 hover:shadow-md transition-all flex items-center gap-4 group cursor-pointer" onClick={() => {
+                <div className="bg-white p-6 rounded-xl border border-slate-200 hover:border-yellow-400 transition-all flex items-center gap-4 cursor-pointer" onClick={() => {
                    const chatButton = document.querySelector('button[aria-label="AI 상담원 연결"]');
                    if (chatButton instanceof HTMLElement) chatButton.click();
                 }}>
@@ -402,42 +343,28 @@ const App: React.FC = () => {
                     </div>
                 </div>
              </div>
-             
-             {/* Email Inquiry Section Removed */}
            </div>
         </section>
-
       </main>
 
-      {/* --- Footer --- */}
       <footer className="bg-slate-900 text-slate-400 py-12 text-sm">
         <div className="container mx-auto px-4 max-w-screen-xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-                <span className="font-black text-white text-lg">9900Studio</span>
-              </div>
+              <span className="font-black text-white text-lg block mb-2">9900Studio</span>
               <p>사업자등록번호: 109-02-01988 | 대표: 이성열</p>
               <p>{t('footer.address')}</p>
-              <p className="mt-2 text-xs text-slate-500">
-                {t('footer.copyright')}
-              </p>
             </div>
-            <div className="flex flex-col gap-4 items-end">
-              <div className="flex gap-6">
-                <button onClick={() => { setView('terms'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.terms')}</button>
-                <button onClick={() => { setView('privacy'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.privacy')}</button>
-              </div>
-              {/* 관리자 페이지 진입 버튼 제거됨 (URL로만 접근) */}
+            <div className="flex gap-6">
+              <button onClick={() => { setView('terms'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.terms')}</button>
+              <button onClick={() => { setView('privacy'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.privacy')}</button>
             </div>
           </div>
-          <p className="mt-8 text-center text-slate-600 text-xs">
-            {t('footer.copyright')}
-          </p>
+          <p className="mt-8 text-center text-slate-600 text-xs">{t('footer.copyright')}</p>
         </div>
       </footer>
 
-      {/* --- Mobile Fixed CTA --- */}
+      {/* Mobile CTA */}
       <div className="md:hidden fixed bottom-6 left-4 right-4 z-40">
         <Button 
           fullWidth 
@@ -452,9 +379,7 @@ const App: React.FC = () => {
         </Button>
       </div>
 
-      {/* --- AI Chatbot Widget --- */}
       <ChatWidget />
-
     </div>
   );
 };
