@@ -140,27 +140,27 @@ export const ChatWidget: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Toggle Button */}
+      {/* Floating Toggle Button (Updated to AI Bot Style) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 md:w-16 md:h-16 bg-[#FEE500] rounded-full shadow-2xl shadow-black/20 hover:scale-110 transition-transform duration-200 flex items-center justify-center relative group border-2 border-white/20 z-50"
+        className="w-14 h-14 md:w-16 md:h-16 bg-slate-900 rounded-full shadow-2xl shadow-slate-900/40 hover:scale-110 transition-transform duration-200 flex items-center justify-center relative group border border-white/10 z-50"
       >
         {isOpen ? (
-          <X className="w-7 h-7 md:w-8 md:h-8 text-slate-900" />
+          <X className="w-6 h-6 md:w-7 md:h-7 text-white" />
         ) : (
-          <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-[#391B1B] fill-[#391B1B]" />
+          <Bot className="w-7 h-7 md:w-8 md:h-8 text-yellow-400" />
         )}
         
         {/* Tooltip (Only when closed) */}
         {!isOpen && (
-          <span className="absolute right-full mr-4 bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="absolute right-full mr-4 bg-white text-slate-900 border border-slate-100 text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl">
             AI 상담원 연결
           </span>
         )}
         
         {/* Notification Badge (Only when closed) */}
         {!isOpen && (
-          <span className="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 bg-red-500 rounded-full border-2 border-[#FEE500] flex items-center justify-center">
+          <span className="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900 flex items-center justify-center">
             <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
           </span>
         )}
