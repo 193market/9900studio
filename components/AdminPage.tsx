@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder, ExternalLink } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder, ExternalLink, Code, Copy } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -109,6 +109,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
     setConfirmPw('');
   };
 
+  // 데이터 내보내기 (JSON 복사)
+  const handleExportData = () => {
+    const dataStr = JSON.stringify(serviceItems, null, 2);
+    // constants.ts 형식에 맞게 약간의 가공 (export const INITIAL_SERVICE_ITEMS = ... 부분은 사용자가 붙여넣기 나름이므로 순수 JSON만 제공하되 안내 메시지 강화)
+    navigator.clipboard.writeText(dataStr).then(() => {
+      alert('데이터가 클립보드에 복사되었습니다!\n\n[적용 방법]\n1. 프로젝트의 constants.ts 파일을 여세요.\n2. INITIAL_SERVICE_ITEMS 배열 전체를 지우고 붙여넣기 하세요.\n3. 변경 사항을 저장하고 다시 배포하면 적용됩니다.');
+    }).catch(err => {
+      console.error('Copy failed', err);
+      alert('복사에 실패했습니다. 콘솔을 확인해주세요.');
+    });
+  };
+
   // URL 입력 핸들러
   const handleUrlSubmit = (itemId: number) => {
     const url = urlInputs[itemId];
@@ -185,7 +197,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
              onClick={() => setActiveTab('settings')}
              className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
            >
-             <Settings className="w-4 h-4" /> 설정 (비밀번호)
+             <Settings className="w-4 h-4" /> 설정 (비밀번호/배포)
            </button>
         </div>
 
@@ -422,8 +434,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
 
         {/* Tab Content: Settings */}
         {activeTab === 'settings' && (
-          <div className="max-w-md mx-auto">
-             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8">
+          <div className="max-w-md mx-auto space-y-8">
+             {/* 1. Developer Data Export */}
+             <div className="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                <h3 className="text-lg font-bold text-yellow-400 mb-2 flex items-center gap-2">
+                   <Code className="w-5 h-5" /> 배포용 데이터 복사 (개발자용)
+                </h3>
+                <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                   로컬에서 수정한 내용을 배포 사이트(Vercel)에 적용하려면, 
+                   이 데이터를 복사하여 코드(constants.ts)에 붙여넣어야 합니다.
+                </p>
+                <button 
+                  onClick={handleExportData}
+                  className="w-full py-3 bg-yellow-400 text-slate-900 font-bold rounded-lg hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-yellow-400/20"
+                >
+                  <Copy className="w-4 h-4" />
+                  데이터 복사하기
+                </button>
+             </div>
+
+             {/* 2. Password Change */}
+             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                    <Lock className="w-5 h-5 text-slate-400" /> 관리자 비밀번호 변경
                 </h3>
@@ -453,9 +485,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                 </div>
              </div>
 
+             {/* 3. Reset Data */}
              <div className="bg-red-50 rounded-2xl border border-red-100 p-8">
                 <h3 className="text-lg font-bold text-red-700 mb-2 flex items-center gap-2">
-                   <AlertIcon /> 데이터 초기화
+                   <RotateCcw className="w-4 h-4" /> 데이터 초기화
                 </h3>
                 <p className="text-red-600 text-sm mb-6">
                   모든 데이터와 비밀번호를 초기 상태로 되돌립니다.
