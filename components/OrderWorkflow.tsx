@@ -11,7 +11,9 @@ import {
   Loader2, 
   ChevronLeft,
   AlertCircle,
-  Lock
+  Lock,
+  Send,
+  ExternalLink
 } from 'lucide-react';
 
 interface OrderWorkflowProps {
@@ -43,6 +45,13 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
   useEffect(() => {
     if (initialService) {
       setVideoType(initialService);
+      // UX: 이미 선택된 경우 자연스럽게 다음 단계(업로드)로 시선 유도
+      setTimeout(() => {
+         const uploadSection = document.getElementById('step-upload');
+         if (uploadSection) {
+            uploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         }
+      }, 500);
     }
   }, [initialService]);
 
@@ -55,7 +64,7 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
     setIsGenerating(false);
   };
 
-  // Final Step: Validation, Payment Simulation & Submit
+  // Final Step: Validation, Submit to Formspree, then Redirect to Payment
   const handlePaymentAndSubmit = async () => {
     // 1. Validation
     if (!videoType) {
@@ -74,11 +83,7 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
     }
     setErrorMsg('');
 
-    // 2. Payment Simulation
-    const confirmPayment = window.confirm(`${wt('step5.alert')}\n(실제로는 결제창이 뜹니다. 확인을 누르면 주문이 전송됩니다.)`);
-    if (!confirmPayment) return;
-
-    // 3. Submit
+    // 2. Submit Data
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append('email', email);
@@ -102,8 +107,15 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
         });
 
         if (response.ok) {
-            alert(wt('submit.alert'));
-            onBack(); // Return to home
+            // 3. Success -> Redirect to Payment
+            const confirmRedirect = window.confirm(wt('step5.alert'));
+            if (confirmRedirect) {
+               // Open Naver Smart Store Product Page in new tab
+               window.open('https://smartstore.naver.com/cheda/products/12907044385', '_blank');
+               onBack(); // Return to home
+            } else {
+               onBack();
+            }
         } else {
             alert("전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
@@ -177,7 +189,7 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
           </div>
 
           {/* Step 2: Upload */}
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+          <div id="step-upload" className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 scroll-mt-24">
             <h2 className="text-xl font-bold flex items-center gap-2 mb-2">
               <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm">2</span>
               {wt('step2.title')}
@@ -341,7 +353,7 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
                    </>
                 ) : (
                    <>
-                     <CreditCard className="w-5 h-5 mr-2" />
+                     <Send className="w-5 h-5 mr-2" />
                      {wt('step5.btn')}
                    </>
                 )}

@@ -466,15 +466,15 @@ export const workflowTranslations = {
       err_common: '모든 항목을 입력해주세요.'
     },
     step5: {
-      title: '결제 및 신청완료',
-      desc: '작성하신 정보로 주문을 접수하고 결제를 진행합니다.',
-      btn: '9,900원 결제하고 신청하기',
-      alert: '테스트 결제가 완료되었습니다.',
-      warn: '* 테스트 모드: 실제 비용이 청구되지 않습니다.'
+      title: '주문서 제출 및 결제',
+      desc: '아래 버튼을 누르면 주문서가 전송되고, 결제 페이지(스마트스토어)가 열립니다.',
+      btn: '주문서 제출 및 결제하러 가기 (₩9,900)',
+      alert: '주문서가 정상적으로 접수되었습니다.\n확인을 누르면 결제를 위해 네이버 스마트스토어로 이동합니다.',
+      warn: '* 주문서 제출 후 결제까지 완료하셔야 제작이 시작됩니다.'
     },
     submit: {
       alert: '주문이 성공적으로 접수되었습니다!',
-      sending: '주문 접수 중...'
+      sending: '주문서 전송 중...'
     }
   },
   en: {
@@ -512,11 +512,11 @@ export const workflowTranslations = {
       err_common: 'Please fill in all fields.'
     },
     step5: {
-      title: 'Payment & Submit',
-      desc: 'Proceed with payment to complete your order.',
-      btn: 'Pay $9 & Submit Order',
-      alert: 'Test payment completed.',
-      warn: '* Test Mode: No actual charge.'
+      title: 'Submit & Pay',
+      desc: 'Clicking the button will submit the order and open the payment page.',
+      btn: 'Submit Order & Go to Pay ($9)',
+      alert: 'Order successfully received.\nRedirecting to Naver Smart Store for payment.',
+      warn: '* Production begins only after payment is completed.'
     },
     submit: {
       alert: 'Order successfully submitted!',
@@ -558,11 +558,11 @@ export const workflowTranslations = {
       err_common: 'すべての項目を入力してください。'
     },
     step5: {
-      title: '決済・申請完了',
-      desc: '入力された情報で注文を受け付け、決済を進行します。',
-      btn: '990円で決済して申請する',
-      alert: 'テスト決済が完了しました。',
-      warn: '* テストモード：実際に課金されません。'
+      title: '注文書提出・決済',
+      desc: '下のボタンを押すと注文書が送信され、決済ページが開きます。',
+      btn: '注文書を提出して決済へ (990円)',
+      alert: '注文書が正常に受け付けられました。\n確認を押すと決済のためスマートストアへ移動します。',
+      warn: '* 注文書提出後、決済まで完了すると制作が開始されます。'
     },
     submit: {
       alert: '注文が正常に受け付けられました！',
@@ -604,11 +604,11 @@ export const workflowTranslations = {
       err_common: 'Vui lòng điền đầy đủ thông tin.'
     },
     step5: {
-      title: 'Thanh toán & Hoàn tất',
-      desc: 'Tiến hành thanh toán để hoàn tất đơn hàng.',
-      btn: 'Thanh toán 190.000₫ & Gửi',
-      alert: 'Thanh toán thử nghiệm hoàn tất.',
-      warn: '* Chế độ thử nghiệm: Không tính phí thực.'
+      title: 'Gửi & Thanh toán',
+      desc: 'Nhấn nút để gửi đơn hàng và mở trang thanh toán.',
+      btn: 'Gửi đơn hàng & Thanh toán (190k)',
+      alert: 'Đã nhận đơn hàng thành công.\nChuyển hướng đến Smart Store để thanh toán.',
+      warn: '* Việc sản xuất chỉ bắt đầu sau khi hoàn tất thanh toán.'
     },
     submit: {
       alert: 'Đã gửi đơn hàng thành công!',
