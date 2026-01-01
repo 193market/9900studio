@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, ArrowLeft, Grid, Settings, Save, RotateCcw, Copy, Trash2, Upload, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { Lock, ArrowLeft, Grid, Settings, Copy, Trash2, Upload, Sparkles, RotateCcw } from 'lucide-react';
 
 // Firebase Import Removed
 
@@ -170,7 +170,37 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         <label className="text-xs font-bold text-slate-500">뱃지</label>
                         <input type="text" value={item.badge} onChange={(e) => updateServiceItem(item.id, 'badge', e.target.value)} className="w-full p-2 border rounded text-red-500" placeholder="BEST, NEW..." />
                       </div>
+                      
+                      {/* AI Information Section */}
+                      <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 mt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                           <Sparkles className="w-4 h-4 text-blue-500" />
+                           <span className="text-sm font-bold text-slate-700">AI 작업 가이드 (내부용)</span>
+                        </div>
+                        <div className="space-y-3">
+                           <div>
+                              <label className="text-xs font-bold text-slate-500">사용 AI 도구</label>
+                              <input 
+                                type="text" 
+                                value={item.aiSite || ''} 
+                                onChange={(e) => updateServiceItem(item.id, 'aiSite', e.target.value)} 
+                                className="w-full p-2 border border-blue-200 rounded text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                                placeholder="예: Runway, Sora, Kling AI" 
+                              />
+                           </div>
+                           <div>
+                              <label className="text-xs font-bold text-slate-500">참고 프롬프트</label>
+                              <textarea 
+                                value={item.aiPrompt || ''} 
+                                onChange={(e) => updateServiceItem(item.id, 'aiPrompt', e.target.value)} 
+                                className="w-full p-2 border border-blue-200 rounded text-sm h-24 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono text-xs" 
+                                placeholder="작업자가 참고할 영문 프롬프트 등을 입력하세요." 
+                              />
+                           </div>
+                        </div>
+                      </div>
                     </div>
+
                     <div className="space-y-4">
                       <label className="text-xs font-bold text-slate-500">영상 목록 ({item.results.length})</label>
                       <div className="grid grid-cols-4 gap-2">

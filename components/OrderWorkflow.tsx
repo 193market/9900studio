@@ -85,6 +85,10 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
 
     // 2. Submit Data
     setIsSubmitting(true);
+    
+    // 선택된 서비스 아이템 정보 찾기 (프롬프트 전달용)
+    const selectedItem = serviceItems.find(item => item.title === videoType);
+
     const formData = new FormData();
     formData.append('email', email);
     formData.append('company', companyName);
@@ -92,6 +96,13 @@ export const OrderWorkflow: React.FC<OrderWorkflowProps> = ({ onBack, initialSer
     formData.append('videoType', videoType);
     formData.append('scriptTopic', scriptTopic);
     formData.append('generatedScript', generatedScript);
+    
+    // 작업자 참조용 AI 정보 추가
+    if (selectedItem) {
+        formData.append('aiSite', selectedItem.aiSite || 'Not specified');
+        formData.append('aiPrompt', selectedItem.aiPrompt || 'Not specified');
+    }
+
     if (files) {
         formData.append('fileCount', files.length.toString());
     }
