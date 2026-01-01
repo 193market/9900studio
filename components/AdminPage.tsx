@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { Button } from './Button';
-import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder, ExternalLink, Code, Copy } from 'lucide-react';
+import { Lock, Upload, ArrowLeft, Film, Settings, RotateCcw, Save, Grid, Plus, X, Trash2, Link as LinkIcon, Bot, FileText, AlertCircle, Folder, ExternalLink, Code, Copy, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -13,13 +13,11 @@ const getVideoEmbedInfo = (inputUrl: string) => {
   if (!url) return { type: 'error', url: '', originalUrl: '', message: '' };
 
   // 1. YouTube 링크 (Shorts 포함)
-  // 정규식에 'shorts'를 추가하여 /shorts/ 경로도 인식하도록 수정됨
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const youtubeMatch = url.match(youtubeRegex);
   
   if (youtubeMatch && youtubeMatch[1]) {
     const videoId = youtubeMatch[1];
-    // 쇼츠 및 일반 영상 공통 파라미터 (자동재생, 음소거, 반복, 컨트롤 숨김)
     const queryParams = `?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
     return {
       type: 'youtube',
@@ -29,7 +27,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
     };
   }
 
-  // 2. Google Drive 링크 처리 (기존 로직 유지)
+  // 2. Google Drive 링크 처리
   if (url.includes('drive.google.com')) {
     let fileId = null;
     const patterns = [
@@ -78,7 +76,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
   const [confirmPw, setConfirmPw] = useState('');
 
   const { 
-    serviceItems, adminPassword, 
+    serviceItems, adminPassword, isLiveMode,
     updateServiceItem, addServiceVideos, addServiceVideoUrl, removeServiceVideo,
     updatePassword, resetData 
   } = usePortfolio();
@@ -109,16 +107,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
     setConfirmPw('');
   };
 
-  // 데이터 내보내기 (JSON 복사)
-  const handleExportData = () => {
+  // 데이터 내보내기 (JSON 파일 다운로드 - 백업용)
+  const handleDownloadBackup = () => {
     const dataStr = JSON.stringify(serviceItems, null, 2);
-    // constants.ts 형식에 맞게 약간의 가공 (export const INITIAL_SERVICE_ITEMS = ... 부분은 사용자가 붙여넣기 나름이므로 순수 JSON만 제공하되 안내 메시지 강화)
-    navigator.clipboard.writeText(dataStr).then(() => {
-      alert('데이터가 클립보드에 복사되었습니다!\n\n[적용 방법]\n1. 프로젝트의 constants.ts 파일을 여세요.\n2. INITIAL_SERVICE_ITEMS 배열 전체를 지우고 붙여넣기 하세요.\n3. 변경 사항을 저장하고 다시 배포하면 적용됩니다.');
-    }).catch(err => {
-      console.error('Copy failed', err);
-      alert('복사에 실패했습니다. 콘솔을 확인해주세요.');
-    });
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `service_backup_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // URL 입력 핸들러
@@ -174,7 +173,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="font-bold text-lg">관리자 모드</h1>
-            <span className="bg-yellow-400 text-slate-900 text-xs px-2 py-0.5 rounded font-bold">LocalStorage</span>
+            {isLiveMode ? (
+               <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1 animate-pulse">
+                 <Cloud className="w-3 h-3" /> Auto Sync
+               </span>
+            ) : (
+               <span className="bg-yellow-400 text-slate-900 text-xs px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                 <CloudOff className="w-3 h-3" /> Local Mode
+               </span>
+            )}
           </div>
           <div className="flex gap-2">
             <button onClick={onBack} className="text-sm text-slate-300 hover:text-white flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-lg transition-colors">
@@ -185,6 +192,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        
+        {/* Sync Alert (If not connected) */}
+        {!isLiveMode && (
+           <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-8 rounded-r-lg shadow-sm">
+              <div className="flex items-start gap-3">
+                 <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
+                 <div>
+                    <h3 className="font-bold text-orange-800">자동 동기화가 꺼져있습니다. (모바일에서 안 보임)</h3>
+                    <p className="text-sm text-orange-700 mt-1 leading-relaxed">
+                       현재 변경사항은 이 컴퓨터에만 저장됩니다. 스마트폰 등 다른 기기에서도 보려면 
+                       <span className="font-bold bg-orange-200 px-1 rounded mx-1">services/firebase.ts</span> 
+                       파일에 Firebase 설정값을 입력해야 합니다.
+                    </p>
+                 </div>
+              </div>
+           </div>
+        )}
+
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-slate-200 overflow-x-auto">
            <button 
@@ -197,7 +222,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
              onClick={() => setActiveTab('settings')}
              className={`pb-3 px-2 text-sm font-bold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
            >
-             <Settings className="w-4 h-4" /> 설정 (비밀번호/배포)
+             <Settings className="w-4 h-4" /> 설정 (동기화/백업)
            </button>
         </div>
 
@@ -208,19 +233,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                 <div>
                     <h2 className="text-2xl font-bold text-slate-900">서비스 메뉴 수정</h2>
                     <p className="text-sm text-slate-500 mt-1">
-                        메인 페이지의 포트폴리오 영상을 관리합니다.
+                       {isLiveMode ? "수정 즉시 모든 기기에 반영됩니다." : "저장 후 '설정' 탭에서 데이터를 복사하여 배포하세요."}
                     </p>
-                </div>
-                <div className="bg-blue-50 text-blue-800 text-xs px-4 py-3 rounded-lg border border-blue-100 flex items-start gap-2 max-w-md">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <div className="flex flex-col gap-1">
-                        <span>
-                            <b>권한 체크:</b> 클라우드 영상은 반드시 <u>'공개'</u> 상태여야 합니다.
-                        </span>
-                        <span className="text-blue-600 border-t border-blue-200 pt-1 mt-1">
-                            <b>링크 팁:</b> YouTube Shorts 링크도 지원합니다.
-                        </span>
-                    </div>
                 </div>
             </div>
 
@@ -285,13 +299,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         </div>
                       </div>
 
-                      {/* 비디오 업로드 영역 (서비스) */}
+                      {/* 비디오 업로드 영역 */}
                       <div className="space-y-6">
-                          {/* Result Videos */}
                           <div>
                               <div className="flex items-center justify-between mb-2">
                                   <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                                      <Film className="w-3 h-3" /> 샘플 영상 (다중 등록 가능)
+                                      <Film className="w-3 h-3" /> 샘플 영상
                                   </label>
                                   <span className="text-[10px] text-slate-400">
                                     * 5초마다 자동 슬라이드
@@ -300,37 +313,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                               
                               <div className="grid grid-cols-4 gap-2">
                                   {item.results.map((videoSrc, idx) => {
-                                    // videoSrc가 객체일 수도 있고 문자열일 수도 있음 (기존 데이터 호환)
                                     const embedInfo = getVideoEmbedInfo(videoSrc);
-                                    
                                     return (
                                       <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-black">
                                           {embedInfo.type === 'error' ? (
                                              <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 p-2 text-center">
                                                 <AlertCircle className="w-6 h-6 text-red-500 mb-1" />
                                                 <p className="text-[10px] text-red-600 font-bold break-all leading-tight">
-                                                  {embedInfo.message}
+                                                  오류
                                                 </p>
                                              </div>
                                           ) : embedInfo.type !== 'video' ? (
-                                             <>
-                                                <iframe 
-                                                  src={embedInfo.url} 
-                                                  className="w-full h-full object-cover" 
-                                                  allowFullScreen 
-                                                  title={`Video ${idx}`}
-                                                />
-                                                {/* 원본 바로가기 버튼 (디버깅용) */}
-                                                <a 
-                                                   href={embedInfo.originalUrl} 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer"
-                                                   className="absolute top-1 left-1 bg-white/80 hover:bg-white text-slate-700 p-1 rounded-md z-20 transition-colors"
-                                                   title="새 창에서 원본 열기"
-                                                >
-                                                    <ExternalLink className="w-3 h-3" />
-                                                </a>
-                                             </>
+                                             <iframe 
+                                               src={embedInfo.url} 
+                                               className="w-full h-full object-cover" 
+                                               title={`Video ${idx}`}
+                                             />
                                           ) : (
                                              <video src={embedInfo.url} className="w-full h-full object-cover" muted />
                                           )}
@@ -341,90 +339,61 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                                           >
                                             <Trash2 className="w-3 h-3" />
                                           </button>
-                                          <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-bold z-10">
-                                            {idx + 1}
-                                          </span>
                                       </div>
                                     );
                                   })}
                               </div>
 
                               {/* Add Video Actions */}
-                              <div className="grid grid-cols-2 gap-2 mt-2">
-                                  {/* Option 1: File Upload (Multiple) */}
-                                  <label className="p-3 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-yellow-400 transition-colors">
-                                      <Upload className="w-4 h-4 text-slate-400 mb-1" />
-                                      <span className="text-[10px] text-slate-500 font-bold">파일 다중 업로드</span>
-                                      <span className="text-[9px] text-slate-400">(여러개 선택 가능)</span>
-                                      <input 
-                                          type="file" 
-                                          accept="video/*"
-                                          className="hidden"
-                                          multiple // Allow multiple files
-                                          onChange={(e) => {
-                                              if(e.target.files) addServiceVideos(item.id, e.target.files);
-                                          }}
-                                      />
-                                  </label>
-
-                                  {/* Option 2: URL Input */}
-                                  <div className="p-2 border border-slate-200 rounded-lg bg-slate-50">
+                              <div className="grid grid-cols-1 gap-2 mt-2">
+                                  {/* URL Input (Primary Recommendation) */}
+                                  <div className="p-2 border border-blue-200 rounded-lg bg-blue-50/50">
                                     <div className="flex items-center gap-1 mb-1">
-                                        <LinkIcon className="w-3 h-3 text-slate-400" />
-                                        <span className="text-[10px] font-bold text-slate-500">외부 영상 링크</span>
+                                        <LinkIcon className="w-3 h-3 text-blue-600" />
+                                        <span className="text-[10px] font-bold text-blue-700">외부 영상 링크 (권장)</span>
                                     </div>
                                     <div className="flex gap-1">
                                         <input 
                                           type="text" 
-                                          placeholder="https://..." 
-                                          className="w-full text-[10px] p-1 border rounded"
+                                          placeholder="유튜브 / 구글드라이브 공유 링크 붙여넣기" 
+                                          className="w-full text-[11px] p-1.5 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none"
                                           value={urlInputs[item.id] || ''}
                                           onChange={(e) => setUrlInputs({...urlInputs, [item.id]: e.target.value})}
                                         />
                                         <button 
                                           onClick={() => handleUrlSubmit(item.id)}
-                                          className="bg-slate-900 text-white text-[10px] px-2 rounded hover:bg-slate-800"
+                                          className="bg-blue-600 text-white text-[10px] px-3 rounded hover:bg-blue-700 font-bold whitespace-nowrap"
                                         >
                                           추가
                                         </button>
                                     </div>
+                                    <p className="text-[9px] text-blue-400 mt-1">
+                                      * 유튜브 쇼츠 링크도 가능합니다. (자동 변환됨)
+                                    </p>
                                   </div>
+
+                                  {/* File Upload (Secondary - with Warning) */}
+                                  <label className={`p-2 flex flex-col items-center justify-center border border-dashed rounded-lg cursor-pointer transition-colors ${isLiveMode ? 'border-orange-200 bg-orange-50 hover:bg-orange-100' : 'border-slate-300 hover:bg-slate-50'}`}>
+                                      <div className="flex items-center gap-2">
+                                        <Upload className={`w-3 h-3 ${isLiveMode ? 'text-orange-500' : 'text-slate-400'}`} />
+                                        <span className={`text-[10px] font-bold ${isLiveMode ? 'text-orange-600' : 'text-slate-500'}`}>
+                                          파일 직접 업로드 {isLiveMode && '(DB용량 주의)'}
+                                        </span>
+                                      </div>
+                                      <input 
+                                          type="file" 
+                                          accept="video/*"
+                                          className="hidden"
+                                          multiple
+                                          onChange={(e) => {
+                                              if(e.target.files) addServiceVideos(item.id, e.target.files);
+                                          }}
+                                      />
+                                  </label>
                               </div>
                           </div>
                       </div>
                     </div>
-
-                    {/* AI 제작 가이드 섹션 */}
-                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                       <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                          <Bot className="w-4 h-4 text-slate-500" /> 
-                          AI 제작 가이드 (내부 작업자용)
-                       </h4>
-                       <div className="grid md:grid-cols-1 gap-4">
-                          <div>
-                             <label className="text-xs font-bold text-slate-500 mb-1 block">사용 AI 툴 / 사이트</label>
-                             <input 
-                                type="text"
-                                placeholder="예: Runway Gen-3, Midjourney v6" 
-                                value={item.aiSite || ''}
-                                onChange={(e) => updateServiceItem(item.id, 'aiSite', e.target.value)}
-                                className="w-full p-2 text-sm bg-white border border-slate-300 rounded focus:border-blue-500 outline-none text-slate-900"
-                             />
-                          </div>
-                          <div>
-                             <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                <FileText className="w-3 h-3" /> 참조 프롬프트 (Prompt)
-                             </label>
-                             <textarea 
-                                placeholder="이 영상을 만들 때 사용한 프롬프트를 기록하세요..." 
-                                value={item.aiPrompt || ''}
-                                onChange={(e) => updateServiceItem(item.id, 'aiPrompt', e.target.value)}
-                                className="w-full p-2 text-sm bg-white border border-slate-300 rounded focus:border-blue-500 outline-none h-20 resize-none text-slate-600 font-mono"
-                             />
-                          </div>
-                       </div>
-                    </div>
-
                   </div>
                 </div>
               ))}
@@ -435,22 +404,40 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
         {/* Tab Content: Settings */}
         {activeTab === 'settings' && (
           <div className="max-w-md mx-auto space-y-8">
-             {/* 1. Developer Data Export */}
-             <div className="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                <h3 className="text-lg font-bold text-yellow-400 mb-2 flex items-center gap-2">
-                   <Code className="w-5 h-5" /> 배포용 데이터 복사 (개발자용)
-                </h3>
-                <p className="text-slate-300 text-sm mb-6 leading-relaxed">
-                   로컬에서 수정한 내용을 배포 사이트(Vercel)에 적용하려면, 
-                   이 데이터를 복사하여 코드(constants.ts)에 붙여넣어야 합니다.
-                </p>
+             {/* 1. Sync Status */}
+             <div className={`rounded-2xl shadow-lg border p-8 text-white relative overflow-hidden ${isLiveMode ? 'bg-green-600 border-green-500' : 'bg-slate-800 border-slate-700'}`}>
+                {isLiveMode ? (
+                  <>
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                     <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                        <Cloud className="w-5 h-5" /> 자동 동기화 사용 중
+                     </h3>
+                     <p className="text-green-100 text-sm mb-6 leading-relaxed">
+                        현재 Firebase 데이터베이스와 연결되어 있습니다.
+                        <br/>
+                        수정 사항이 모든 기기에 <b>즉시 자동 반영</b>됩니다.
+                     </p>
+                  </>
+                ) : (
+                  <>
+                     <h3 className="text-lg font-bold text-yellow-400 mb-2 flex items-center gap-2">
+                        <CloudOff className="w-5 h-5" /> 자동 동기화 미사용
+                     </h3>
+                     <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                        현재는 변경사항이 이 컴퓨터에만 저장됩니다.
+                        <br/>
+                        <code className="bg-slate-900 px-1 py-0.5 rounded text-yellow-200">services/firebase.ts</code> 파일에 설정값을 넣으면 자동 모드로 전환됩니다.
+                     </p>
+                  </>
+                )}
+                
+                {/* Manual Backup Button (Always available) */}
                 <button 
-                  onClick={handleExportData}
-                  className="w-full py-3 bg-yellow-400 text-slate-900 font-bold rounded-lg hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-yellow-400/20"
+                  onClick={handleDownloadBackup}
+                  className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-white/20"
                 >
                   <Copy className="w-4 h-4" />
-                  데이터 복사하기
+                  현재 데이터 백업(다운로드)
                 </button>
              </div>
 
@@ -507,7 +494,3 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
     </div>
   );
 };
-
-const AlertIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-triangle"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-);
