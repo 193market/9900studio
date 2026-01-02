@@ -18,7 +18,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
   
   if (youtubeMatch && youtubeMatch[1]) {
     const videoId = youtubeMatch[1];
-    // autoplay=1 is essential for the facade pattern to work smoothly on hover
+    // autoplay=1 is essential for the facade pattern
     const queryParams = `?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
     return {
       type: 'youtube',
@@ -138,15 +138,57 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const cardRef = useRef<HTMLDivElement>(null);
 
+  // 1. 모바일 감지 (터치 디바이스)
   useEffect(() => {
-    if (item.results.length <= 1 || isHovered) return;
+    const checkMobile = () => {
+      // hover가 불가능하거나 포인터가 굵은(손가락) 경우 모바일로 간주
+      const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+      setIsMobile(isTouch);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 2. 뷰포트 감지 (화면에 보일 때만 재생)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.6 } // 카드가 60% 이상 보일 때 재생 트리거
+    );
+    
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+    
+    return () => {
+      if (cardRef.current) observer.unobserve(cardRef.current);
+    };
+  }, []);
+
+  // 재생 조건:
+  // - 데스크톱: 마우스 오버 시 (isHovered)
+  // - 모바일: 화면에 보일 시 (isMobile && isInView)
+  const shouldPlay = isHovered || (isMobile && isInView);
+
+  // 슬라이드 쇼 로직
+  useEffect(() => {
+    // 영상이 1개뿐이거나, 현재 재생 중(shouldPlay)이면 슬라이드를 멈춥니다.
+    // (재생 중에 계속 바뀌면 영상이 끊기기 때문)
+    if (item.results.length <= 1 || shouldPlay) return;
+
     const interval = setInterval(() => {
       setCurrentVideoIndex((prev) => (prev + 1) % item.results.length);
-    }, 5000);
+    }, 5000); // 5초마다 썸네일 변경
     return () => clearInterval(interval);
-  }, [item.results.length, isHovered]);
+  }, [item.results.length, shouldPlay]);
 
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
@@ -187,6 +229,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
 
   return (
     <div 
+      ref={cardRef}
       className={`group relative bg-white rounded-[2rem] border transition-all duration-300 hover:shadow-2xl flex flex-col overflow-hidden w-full ${style.border}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -212,20 +255,18 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
            if (info.type === 'error') return <div key={idx} className={commonClass + " bg-slate-100 flex items-center justify-center"}><AlertCircle className="text-slate-300" /></div>;
            
            if (info.type === 'youtube') {
-             // --- [최적화 핵심] Facade Pattern ---
-             // 마우스를 올렸고(Hover), 현재 재생할 차례(Active)일 때만 iframe을 로드합니다.
-             // 그 외의 경우에는 가벼운 썸네일 이미지(jpg)를 보여줍니다.
-             if (isHovered && isActive) {
+             // Facade Pattern:
+             // 1. 데스크톱: Hover 시 iframe 로드
+             // 2. 모바일: Viewport 진입 시 iframe 로드
+             if (shouldPlay && isActive) {
                return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" title={item.title} />;
              } else {
-               // hqdefault.jpg: 고화질 썸네일
                const thumbUrl = `https://i.ytimg.com/vi/${info.id}/hqdefault.jpg`;
                return <img key={idx} src={thumbUrl} className={commonClass} alt="preview" loading="lazy" style={{ objectFit: 'cover' }} />;
              }
            }
            
            if (info.type !== 'video') {
-             // Drive 등 기타 iframe (Lazy load 적용)
              return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" loading="lazy" />;
            }
            
