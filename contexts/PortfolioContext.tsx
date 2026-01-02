@@ -35,8 +35,8 @@ interface PortfolioContextType {
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 // LocalStorage Keys
-// v10 -> v11: Update key to force refresh data (YouTube Links -> MP4 Links)
-const STORAGE_KEY_SERVICES = 'service_data_v11_items'; 
+// Updated key to force refresh data with new menu items
+const STORAGE_KEY_SERVICES = 'service_data_v12_items'; 
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 
@@ -48,7 +48,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       const saved = localStorage.getItem(STORAGE_KEY_SERVICES);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // 데이터 구조 마이그레이션 (results 배열이 없는 구버전 데이터 대비)
+        // 데이터 구조 마이그레이션
         return parsed.map((item: any) => ({
              ...item,
              results: item.results || (item.result ? [item.result] : []),
