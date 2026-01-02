@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  Play, Sparkles, Zap, AlertCircle, Flame, Gift, Tag, Check
+  Play, Sparkles, Zap, AlertCircle, Flame, Gift, Tag
 } from 'lucide-react';
 
 interface ServiceMenuProps {
@@ -18,6 +18,7 @@ const getVideoEmbedInfo = (inputUrl: string) => {
   
   if (youtubeMatch && youtubeMatch[1]) {
     const videoId = youtubeMatch[1];
+    // autoplay=1 is essential for the facade pattern to work smoothly on hover
     const queryParams = `?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
     return {
       type: 'youtube',
@@ -210,10 +211,25 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
 
            if (info.type === 'error') return <div key={idx} className={commonClass + " bg-slate-100 flex items-center justify-center"}><AlertCircle className="text-slate-300" /></div>;
            
+           if (info.type === 'youtube') {
+             // --- [최적화 핵심] Facade Pattern ---
+             // 마우스를 올렸고(Hover), 현재 재생할 차례(Active)일 때만 iframe을 로드합니다.
+             // 그 외의 경우에는 가벼운 썸네일 이미지(jpg)를 보여줍니다.
+             if (isHovered && isActive) {
+               return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" title={item.title} />;
+             } else {
+               // hqdefault.jpg: 고화질 썸네일
+               const thumbUrl = `https://i.ytimg.com/vi/${info.id}/hqdefault.jpg`;
+               return <img key={idx} src={thumbUrl} className={commonClass} alt="preview" loading="lazy" style={{ objectFit: 'cover' }} />;
+             }
+           }
+           
            if (info.type !== 'video') {
+             // Drive 등 기타 iframe (Lazy load 적용)
              return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" loading="lazy" />;
            }
            
+           // Native Video
            return <video key={idx} ref={el => {videoRefs.current[idx]=el}} src={info.url} className={commonClass} muted loop playsInline autoPlay={idx===0} />;
          })}
          
