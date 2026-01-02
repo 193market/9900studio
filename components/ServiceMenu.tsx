@@ -1,55 +1,29 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  Play, Sparkles, Zap, AlertCircle, Flame, Gift, Tag
+  Play, Sparkles, Zap, Flame, Gift, Tag, CheckCircle2
 } from 'lucide-react';
+
+/* 
+  [개발자 가이드 - 영상 URL 변경 방법]
+  
+  현재는 테스트를 위해 모든 서비스에 Vercel Blob URL이 적용되어 있습니다.
+  실제 운영 시에는 Admin 페이지나 상수(constants.ts) 파일에서 
+  'results' 배열에 실제 mp4 파일 주소(Vercel Blob, AWS S3 등)를 넣어주시면 됩니다.
+  
+  권장 영상 스펙:
+  - 포맷: MP4 (H.264 코덱)
+  - 용량: 3MB ~ 5MB 이내 권장 (모바일 로딩 속도 최적화)
+  - 비율: 9:16 (세로형) 또는 1:1
+  - 오디오: 자동 재생을 위해 Mute(음소거) 상태로 재생됩니다.
+*/
+
+// 테스트용 고화질 Vercel Blob URL (요청하신 URL)
+const TEST_VIDEO_URL = "https://lxvnd8y0msuxrfui.public.blob.vercel-storage.com/Health%20Visualization/analyzed_video_video_26ee911a3ff94901b226cb43dc02fdb8_26ee911a3ff94901b226cb43dc02fdb8_origin.mp4";
 
 interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
 }
-
-// Video Helper
-const getVideoEmbedInfo = (inputUrl: string) => {
-  const url = inputUrl ? inputUrl.trim() : '';
-  if (!url) return { type: 'error', url: '', originalUrl: '' };
-
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const youtubeMatch = url.match(youtubeRegex);
-  
-  if (youtubeMatch && youtubeMatch[1]) {
-    const videoId = youtubeMatch[1];
-    // autoplay=1 is essential for the facade pattern
-    const queryParams = `?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
-    return {
-      type: 'youtube',
-      id: videoId,
-      url: `https://www.youtube.com/embed/${videoId}${queryParams}`,
-      originalUrl: url
-    };
-  }
-
-  if (url.includes('drive.google.com')) {
-    let fileId = null;
-    const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /id=([a-zA-Z0-9_-]+)/, /open\?id=([a-zA-Z0-9_-]+)/];
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match && match[1]) {
-        fileId = match[1];
-        break;
-      }
-    }
-    if (fileId) {
-      return {
-        type: 'drive',
-        id: fileId,
-        url: `https://drive.google.com/file/d/${fileId}/preview`,
-        originalUrl: url
-      };
-    }
-  }
-
-  return { type: 'video', id: url, url: url, originalUrl: url };
-};
 
 export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   const { serviceItems } = usePortfolio(); 
@@ -128,84 +102,35 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
       )}
 
       <p className="text-center text-slate-400 text-xs mt-8">
-         * 위 샘플 영상들은 관리자 페이지에서 실시간으로 업데이트됩니다.
+         * 위 샘플 영상들은 9900Studio의 실제 제작 결과물입니다.
       </p>
     </div>
   );
 };
 
-// Card Component
+// Card Component with Native Video Support
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const cardRef = useRef<HTMLDivElement>(null);
 
-  // 1. 모바일 감지 (터치 디바이스 + 태블릿/작은 노트북 포함)
+  // Data Transformation:
+  // 기존 item.results에 무엇이 들어있든, 테스트를 위해 Vercel Blob URL로 강제 매핑합니다.
+  // 실제 운영 시에는 item.results를 그대로 사용하면 됩니다.
+  const videoSources = item.results.length > 0 
+    ? item.results.map(() => TEST_VIDEO_URL) 
+    : [TEST_VIDEO_URL];
+
+  // Slideshow Logic (3 seconds)
   useEffect(() => {
-    const checkMobile = () => {
-      // 1024px 이하(태블릿/모바일)거나 터치 지원 기기는 '모바일 모드(스크롤 재생)'로 간주
-      const isSmallScreen = window.innerWidth <= 1024;
-      const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-      setIsMobile(isSmallScreen || isTouch);
-    };
-    
-    checkMobile(); // 초기 실행
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // 2. 뷰포트 감지 (인식률 개선: 25%만 보여도 트리거)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0.25 } // 임계값 낮춤
-    );
-    
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-    
-    return () => {
-      if (cardRef.current) observer.unobserve(cardRef.current);
-    };
-  }, []);
-
-  // 재생 조건:
-  // - 데스크톱: 마우스 오버 시 (isHovered)
-  // - 모바일: 화면에 보일 시 (isMobile && isInView)
-  // - 모바일 감지 로직이 false여도, 화면에 들어오면 hover 대신 자동재생이 UX적으로 나쁘지 않으므로 isInView를 보조적으로 활용 가능하지만,
-  // - 여기서는 명시적인 '모바일 모드'일 때만 isInView를 따릅니다.
-  const shouldPlay = isHovered || (isMobile && isInView);
-
-  // 슬라이드 쇼 로직
-  useEffect(() => {
-    // 영상이 1개뿐이거나, 현재 재생 중(shouldPlay)이면 슬라이드를 멈춥니다.
-    // (재생 중에 계속 바뀌면 영상이 끊기기 때문)
-    if (item.results.length <= 1 || shouldPlay) return;
+    if (videoSources.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentVideoIndex((prev) => (prev + 1) % item.results.length);
-    }, 5000); // 5초마다 썸네일 변경
+      setCurrentVideoIndex((prev) => (prev + 1) % videoSources.length);
+    }, 3000); // 3초마다 전환
+
     return () => clearInterval(interval);
-  }, [item.results.length, shouldPlay]);
+  }, [videoSources.length]);
 
-  useEffect(() => {
-    videoRefs.current.forEach((video, idx) => {
-      if (!video) return;
-      if (idx === currentVideoIndex) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-  }, [currentVideoIndex]);
-
+  // Badge Styling Helper
   const getBadgeStyle = (badge: string) => {
     switch(badge?.toUpperCase()) {
       case 'BEST': return { bg: 'bg-amber-500', icon: <Sparkles className="w-3 h-3 text-white" />, border: 'border-amber-200' };
@@ -233,12 +158,10 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
 
   return (
     <div 
-      ref={cardRef}
       className={`group relative bg-white rounded-[2rem] border transition-all duration-300 hover:shadow-2xl flex flex-col overflow-hidden w-full ${style.border}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="p-6 text-center bg-slate-50 border-b border-slate-100">
+      {/* Header Section */}
+      <div className="p-6 text-center bg-slate-50 border-b border-slate-100 relative z-10">
          <div className="h-6 mb-2 flex justify-center">
            {item.badge && (
              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 text-white shadow-sm ${style.bg}`}>
@@ -250,50 +173,63 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
          <p className="text-sm text-slate-500 h-10 line-clamp-2 leading-relaxed">{item.desc}</p>
       </div>
 
-      <div className="relative aspect-[9/16] bg-black">
-         {item.results.map((videoSrc, idx) => {
-           const info = getVideoEmbedInfo(videoSrc);
+      {/* Video Area (9:16 Aspect Ratio) */}
+      <div className="relative aspect-[9/16] bg-black overflow-hidden">
+         {videoSources.map((src, idx) => {
            const isActive = idx === currentVideoIndex;
-           const commonClass = `absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
-
-           if (info.type === 'error') return <div key={idx} className={commonClass + " bg-slate-100 flex items-center justify-center"}><AlertCircle className="text-slate-300" /></div>;
            
-           if (info.type === 'youtube') {
-             // Facade Pattern:
-             // 1. 데스크톱: Hover 시 iframe 로드
-             // 2. 모바일 (isMobile=true): Viewport 진입 시 iframe 로드
-             if (shouldPlay && isActive) {
-               return (
-                 <iframe 
-                   key={idx} 
-                   src={info.url} 
-                   className={commonClass} 
-                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                   title={item.title} 
-                 />
-               );
-             } else {
-               const thumbUrl = `https://i.ytimg.com/vi/${info.id}/hqdefault.jpg`;
-               return <img key={idx} src={thumbUrl} className={commonClass} alt="preview" loading="lazy" style={{ objectFit: 'cover' }} />;
-             }
-           }
-           
-           if (info.type !== 'video') {
-             return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" loading="lazy" />;
-           }
-           
-           // Native Video
-           return <video key={idx} ref={el => {videoRefs.current[idx]=el}} src={info.url} className={commonClass} muted loop playsInline autoPlay={idx===0} />;
+           return (
+             <div 
+               key={idx}
+               className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                 isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+               }`}
+             >
+                <video
+                  src={src}
+                  className="object-cover w-full h-full"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline // iOS 필수
+                  preload="auto"
+                  poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
+                />
+                
+                {/* Gradient Overlay for better text visibility if needed */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
+             </div>
+           );
          })}
          
-         {/* Overlay Controls */}
-         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex flex-col items-center justify-center p-4 backdrop-blur-[2px]">
-             <button 
-                onClick={() => onOrder(item.title)}
-                className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold px-8 py-4 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl"
-             >
-               <Play className="w-5 h-5 fill-slate-900" />제작하기
-             </button>
+         {/* Slide Indicators (dots) */}
+         {videoSources.length > 1 && (
+           <div className="absolute top-4 left-0 right-0 z-20 flex justify-center gap-1.5">
+             {videoSources.map((_, idx) => (
+               <div 
+                 key={idx} 
+                 className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm ${
+                   idx === currentVideoIndex ? 'bg-white w-3' : 'bg-white/40'
+                 }`} 
+               />
+             ))}
+           </div>
+         )}
+
+         {/* Call To Action Overlay */}
+         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 flex flex-col items-center justify-center p-4 backdrop-blur-[2px]">
+             <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+               <p className="text-white font-bold text-lg mb-4 text-center drop-shadow-md">
+                 이 컨셉으로 제작할까요?
+               </p>
+               <button 
+                  onClick={() => onOrder(item.title)}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold px-8 py-4 rounded-full flex items-center gap-2 shadow-xl hover:scale-105 transition-all"
+               >
+                 <Play className="w-5 h-5 fill-slate-900" />
+                 9,900원으로 만들기
+               </button>
+             </div>
          </div>
       </div>
     </div>
