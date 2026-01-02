@@ -35,7 +35,8 @@ interface PortfolioContextType {
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 // LocalStorage Keys
-const STORAGE_KEY_SERVICES = 'service_data_v8_items'; 
+// v9 -> v10: Update key to force refresh data from constants.ts on user's browser
+const STORAGE_KEY_SERVICES = 'service_data_v10_items'; 
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 

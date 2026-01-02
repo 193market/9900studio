@@ -144,44 +144,5 @@ export const INITIAL_SERVICE_ITEMS = [
     ],
     "aiSite": "Viggle AI / D-ID",
     "aiPrompt": "Funny character dancing in an unexpected location, exaggerated expressions, comic book style effects"
-  },
-  {
-    "id": 12,
-    "categoryKey": "video",
-    "badge": "SALE",
-    "title": "사이버 먼데이 (Cyber Monday)",
-    "desc": "디지털 기기 및 IT 제품 파격 할인을 위한 사이버펑크 스타일 영상입니다.",
-    "inputs": [],
-    "results": [
-      "https://cdn.coverr.co/videos/coverr-typing-on-a-keyboard-with-neon-lights-4519/1080p.mp4"
-    ],
-    "aiSite": "Kling AI",
-    "aiPrompt": "Cyber Monday sale text 3D render, neon blue and purple, glitch effect, high tech product showcase background"
-  },
-  {
-    "id": 13,
-    "categoryKey": "video",
-    "badge": "EVENT",
-    "title": "크리스마스 (Christmas)",
-    "desc": "따뜻한 연말 감성으로 브랜드 이미지를 높이는 시즌 무비입니다.",
-    "inputs": [],
-    "results": [
-      "https://cdn.coverr.co/videos/coverr-decorating-a-christmas-tree-5345/1080p.mp4"
-    ],
-    "aiSite": "Midjourney v6 + Runway",
-    "aiPrompt": "Cozy christmas atmosphere, snow falling outside window, fireplace, gifts under tree, cinematic warm lighting"
-  },
-  {
-    "id": 14,
-    "categoryKey": "video",
-    "badge": "SALE",
-    "title": "블랙 프라이데이 (Black Friday)",
-    "desc": "1년 중 가장 강력한 세일 기간, 긴박감을 주는 타이포그래피 모션입니다.",
-    "inputs": [],
-    "results": [
-      "https://cdn.coverr.co/videos/coverr-woman-holding-shopping-bags-5481/1080p.mp4"
-    ],
-    "aiSite": "Leonardo.ai Motion",
-    "aiPrompt": "Black Friday bold typography, red and black theme, fast cuts, shopping bags, excitement, motion graphics"
   }
 ];
