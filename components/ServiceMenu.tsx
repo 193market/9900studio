@@ -143,25 +143,27 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // 1. 모바일 감지 (터치 디바이스)
+  // 1. 모바일 감지 (터치 디바이스 + 태블릿/작은 노트북 포함)
   useEffect(() => {
     const checkMobile = () => {
-      // hover가 불가능하거나 포인터가 굵은(손가락) 경우 모바일로 간주
+      // 1024px 이하(태블릿/모바일)거나 터치 지원 기기는 '모바일 모드(스크롤 재생)'로 간주
+      const isSmallScreen = window.innerWidth <= 1024;
       const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-      setIsMobile(isTouch);
+      setIsMobile(isSmallScreen || isTouch);
     };
-    checkMobile();
+    
+    checkMobile(); // 초기 실행
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 2. 뷰포트 감지 (화면에 보일 때만 재생)
+  // 2. 뷰포트 감지 (인식률 개선: 25%만 보여도 트리거)
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
       },
-      { threshold: 0.6 } // 카드가 60% 이상 보일 때 재생 트리거
+      { threshold: 0.25 } // 임계값 낮춤
     );
     
     if (cardRef.current) {
@@ -176,6 +178,8 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
   // 재생 조건:
   // - 데스크톱: 마우스 오버 시 (isHovered)
   // - 모바일: 화면에 보일 시 (isMobile && isInView)
+  // - 모바일 감지 로직이 false여도, 화면에 들어오면 hover 대신 자동재생이 UX적으로 나쁘지 않으므로 isInView를 보조적으로 활용 가능하지만,
+  // - 여기서는 명시적인 '모바일 모드'일 때만 isInView를 따릅니다.
   const shouldPlay = isHovered || (isMobile && isInView);
 
   // 슬라이드 쇼 로직
@@ -257,9 +261,17 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
            if (info.type === 'youtube') {
              // Facade Pattern:
              // 1. 데스크톱: Hover 시 iframe 로드
-             // 2. 모바일: Viewport 진입 시 iframe 로드
+             // 2. 모바일 (isMobile=true): Viewport 진입 시 iframe 로드
              if (shouldPlay && isActive) {
-               return <iframe key={idx} src={info.url} className={commonClass} allow="autoplay; encrypted-media" title={item.title} />;
+               return (
+                 <iframe 
+                   key={idx} 
+                   src={info.url} 
+                   className={commonClass} 
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                   title={item.title} 
+                 />
+               );
              } else {
                const thumbUrl = `https://i.ytimg.com/vi/${info.id}/hqdefault.jpg`;
                return <img key={idx} src={thumbUrl} className={commonClass} alt="preview" loading="lazy" style={{ objectFit: 'cover' }} />;
