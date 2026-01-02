@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
   Play, Sparkles, Zap, Flame, Gift, Tag, CheckCircle2, AlertCircle
@@ -91,7 +91,58 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   );
 };
 
-// Card Component with Native Video Support
+// --- Mobile Optimized Video Player Component ---
+const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActive }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // [Crucial Fix for Mobile]
+    // iOS Safari requires 'defaultMuted' to be true property, not just attribute.
+    video.defaultMuted = true;
+    video.muted = true;
+    video.playsInline = true;
+
+    // Force Play logic
+    const playVideo = async () => {
+      try {
+        if (isActive) {
+           // Promise based play handling to avoid "The play() request was interrupted" error
+           const playPromise = video.play();
+           if (playPromise !== undefined) {
+             await playPromise;
+           }
+        } else {
+           video.pause();
+           video.currentTime = 0; // Reset to start when hidden
+        }
+      } catch (err) {
+        console.warn("Autoplay blocked or interrupted:", err);
+      }
+    };
+
+    playVideo();
+
+  }, [src, isActive]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      className="object-cover w-full h-full"
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
+    />
+  );
+};
+
+
+// Card Component
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
@@ -170,16 +221,8 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                     isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
                   }`}
                 >
-                    <video
-                      src={src}
-                      className="object-cover w-full h-full"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline // iOS 필수
-                      preload="auto"
-                      poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
-                    />
+                    {/* Separate Component for ref management */}
+                    <VideoPlayer src={src} isActive={isActive} />
                     
                     {/* Gradient Overlay for better text visibility if needed */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
