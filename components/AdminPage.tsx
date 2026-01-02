@@ -207,8 +207,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         {item.results.map((vid, idx) => {
                           const info = getVideoEmbedInfo(vid);
                           return (
-                            <div key={idx} className="aspect-square relative group bg-black rounded overflow-hidden">
-                              {info.type !== 'video' ? <iframe src={info.url} className="w-full h-full" /> : <video src={info.url} className="w-full h-full object-cover" />}
+                            <div key={idx} className="aspect-[9/16] relative group bg-black rounded overflow-hidden">
+                              {info.type !== 'video' ? (
+                                <iframe src={info.url} className="w-full h-full" />
+                              ) : (
+                                <video 
+                                    src={info.url} 
+                                    className="w-full h-full object-cover" 
+                                    controls 
+                                    muted 
+                                />
+                              )}
                               <button onClick={() => removeServiceVideo(item.id, idx)} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-3 h-3" /></button>
                             </div>
                           );
@@ -218,14 +227,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBack }) => {
                         <input 
                           type="text" 
                           className="flex-1 p-2 border rounded text-xs" 
-                          placeholder="영상 링크 (YouTube 등)"
+                          placeholder="MP4 링크 (Vercel Blob 등)"
                           value={urlInputs[item.id] || ''}
                           onChange={(e) => setUrlInputs({...urlInputs, [item.id]: e.target.value})}
                         />
                         <button onClick={() => { if(urlInputs[item.id]) { addServiceVideoUrl(item.id, urlInputs[item.id]); setUrlInputs({...urlInputs, [item.id]: ''}); } }} className="bg-blue-600 text-white text-xs px-3 rounded">추가</button>
                       </div>
                       <label className="flex items-center gap-2 cursor-pointer border p-2 rounded justify-center hover:bg-slate-50">
-                        <Upload className="w-3 h-3" /> <span className="text-xs">파일 업로드</span>
+                        <Upload className="w-3 h-3" /> <span className="text-xs">파일 업로드 (MP4)</span>
                         <input type="file" className="hidden" multiple accept="video/*" onChange={(e) => e.target.files && addServiceVideos(item.id, e.target.files)} />
                       </label>
                     </div>

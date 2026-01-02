@@ -1,25 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  Play, Sparkles, Zap, Flame, Gift, Tag, CheckCircle2
+  Play, Sparkles, Zap, Flame, Gift, Tag, CheckCircle2, AlertCircle
 } from 'lucide-react';
-
-/* 
-  [개발자 가이드 - 영상 URL 변경 방법]
-  
-  현재는 테스트를 위해 모든 서비스에 Vercel Blob URL이 적용되어 있습니다.
-  실제 운영 시에는 Admin 페이지나 상수(constants.ts) 파일에서 
-  'results' 배열에 실제 mp4 파일 주소(Vercel Blob, AWS S3 등)를 넣어주시면 됩니다.
-  
-  권장 영상 스펙:
-  - 포맷: MP4 (H.264 코덱)
-  - 용량: 3MB ~ 5MB 이내 권장 (모바일 로딩 속도 최적화)
-  - 비율: 9:16 (세로형) 또는 1:1
-  - 오디오: 자동 재생을 위해 Mute(음소거) 상태로 재생됩니다.
-*/
-
-// 테스트용 고화질 Vercel Blob URL (요청하신 URL)
-const TEST_VIDEO_URL = "https://lxvnd8y0msuxrfui.public.blob.vercel-storage.com/Health%20Visualization/analyzed_video_video_26ee911a3ff94901b226cb43dc02fdb8_26ee911a3ff94901b226cb43dc02fdb8_origin.mp4";
 
 interface ServiceMenuProps {
   onOrder: (serviceName: string) => void;
@@ -112,12 +95,8 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  // Data Transformation:
-  // 기존 item.results에 무엇이 들어있든, 테스트를 위해 Vercel Blob URL로 강제 매핑합니다.
-  // 실제 운영 시에는 item.results를 그대로 사용하면 됩니다.
-  const videoSources = item.results.length > 0 
-    ? item.results.map(() => TEST_VIDEO_URL) 
-    : [TEST_VIDEO_URL];
+  // Use real data from context
+  const videoSources = item.results || [];
 
   // Slideshow Logic (3 seconds)
   useEffect(() => {
@@ -174,33 +153,40 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
       </div>
 
       {/* Video Area (9:16 Aspect Ratio) */}
-      <div className="relative aspect-[9/16] bg-black overflow-hidden">
-         {videoSources.map((src, idx) => {
-           const isActive = idx === currentVideoIndex;
-           
-           return (
-             <div 
-               key={idx}
-               className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
-                 isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
-               }`}
-             >
-                <video
-                  src={src}
-                  className="object-cover w-full h-full"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline // iOS 필수
-                  preload="auto"
-                  poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
-                />
-                
-                {/* Gradient Overlay for better text visibility if needed */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
-             </div>
-           );
-         })}
+      <div className="relative aspect-[9/16] bg-black overflow-hidden bg-slate-100">
+         {videoSources.length === 0 ? (
+            <div className="absolute inset-0 flex items-center justify-center text-slate-400 flex-col gap-2">
+               <AlertCircle className="w-8 h-8 opacity-50" />
+               <span className="text-xs">등록된 영상이 없습니다</span>
+            </div>
+         ) : (
+            videoSources.map((src, idx) => {
+              const isActive = idx === currentVideoIndex;
+              
+              return (
+                <div 
+                  key={idx}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                    isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                    <video
+                      src={src}
+                      className="object-cover w-full h-full"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline // iOS 필수
+                      preload="auto"
+                      poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
+                    />
+                    
+                    {/* Gradient Overlay for better text visibility if needed */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
+                </div>
+              );
+            })
+         )}
          
          {/* Slide Indicators (dots) */}
          {videoSources.length > 1 && (
