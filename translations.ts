@@ -1,4 +1,5 @@
 
+
 export const translations = {
   ko: {
     nav: {
@@ -457,10 +458,10 @@ export const workflowTranslations = {
     step4: {
       title: '신청자 정보 입력',
       label_email: '이메일 주소',
-      label_company: '회사/단체명',
+      label_company: '성명 / 회사 / 단체명',
       label_phone: '연락처 (핸드폰)',
       placeholder: 'name@example.com',
-      placeholder_company: '예: 193market',
+      placeholder_company: '예: 홍길동 or 193market',
       placeholder_phone: '예: 010-1234-5678',
       err_email: '올바른 이메일 형식이 아닙니다.',
       err_common: '모든 항목을 입력해주세요.'
@@ -503,10 +504,10 @@ export const workflowTranslations = {
     step4: {
       title: 'Applicant Info',
       label_email: 'Email Address',
-      label_company: 'Company Name',
+      label_company: 'Name / Company',
       label_phone: 'Phone Number',
       placeholder: 'name@example.com',
-      placeholder_company: 'e.g. 193market',
+      placeholder_company: 'e.g. John Doe or 193market',
       placeholder_phone: 'e.g. 010-1234-5678',
       err_email: 'Invalid email format.',
       err_common: 'Please fill in all fields.'
@@ -549,10 +550,10 @@ export const workflowTranslations = {
     step4: {
       title: '申込者情報',
       label_email: 'メールアドレス',
-      label_company: '会社・団体名',
+      label_company: '氏名・会社・団体名',
       label_phone: '電話番号（携帯）',
       placeholder: 'name@example.com',
-      placeholder_company: '例：193market',
+      placeholder_company: '例：山田太郎 or 193market',
       placeholder_phone: '例：090-1234-5678',
       err_email: 'メールアドレスの形式が正しくありません。',
       err_common: 'すべての項目を入力してください。'
@@ -595,10 +596,10 @@ export const workflowTranslations = {
     step4: {
       title: 'Thông tin người đăng ký',
       label_email: 'Địa chỉ Email',
-      label_company: 'Tên công ty/Tổ chức',
+      label_company: 'Họ tên / Tên công ty',
       label_phone: 'Số điện thoại',
       placeholder: 'name@example.com',
-      placeholder_company: 'VD: 193market',
+      placeholder_company: 'VD: Nguyen Van A or 193market',
       placeholder_phone: 'VD: 090-1234-5678',
       err_email: 'Định dạng email không hợp lệ.',
       err_common: 'Vui lòng điền đầy đủ thông tin.'

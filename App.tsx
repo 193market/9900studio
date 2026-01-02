@@ -19,7 +19,8 @@ import {
   Globe,
   ChevronDown,
   ExternalLink,
-  CheckCircle2
+  CheckCircle2,
+  Megaphone
 } from 'lucide-react';
 
 // Firebase import 절대 금지
@@ -263,6 +264,41 @@ const App: React.FC = () => {
         <section id="services" className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
           <div className="container mx-auto px-4 max-w-screen-xl relative z-10">
+             
+             {/* Announcement Banner */}
+             <div className="max-w-4xl mx-auto mb-20">
+                <div className="bg-slate-900 rounded-2xl p-1 shadow-2xl transform hover:-translate-y-1 transition-transform duration-300">
+                    <div className="bg-slate-900 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden border border-white/10">
+                        {/* Background Decoration */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                        
+                        <div className="flex items-center gap-5 relative z-10">
+                            <div className="w-14 h-14 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg rotate-3">
+                                <Megaphone className="w-7 h-7 text-slate-900" />
+                            </div>
+                            <div className="text-center md:text-left">
+                                <div className="inline-block bg-yellow-400/20 border border-yellow-400/30 text-yellow-300 text-[10px] font-bold px-2 py-0.5 rounded mb-2">
+                                    NEWS
+                                </div>
+                                <h3 className="text-xl md:text-2xl font-black text-white mb-1">
+                                    선착순 100명 <span className="text-yellow-400 underline decoration-yellow-400/30 decoration-4 underline-offset-4">프리미엄 기획</span> 무료
+                                </h3>
+                                <p className="text-slate-400 text-sm">
+                                    지금 주문 시 5만원 상당의 전문 기획안을 무료로 제공해드립니다.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button 
+                          onClick={() => handleOrder()}
+                          className="relative z-10 bg-white text-slate-900 px-8 py-3 rounded-xl font-bold hover:bg-yellow-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
+                        >
+                          혜택받고 시작하기 <ArrowRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+             </div>
+
              <div className="text-center mb-20">
                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>

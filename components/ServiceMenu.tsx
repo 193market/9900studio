@@ -74,18 +74,20 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
 
     // 2. Filter by Category
     if (filter === 'ALL') return items;
+    if (filter === 'EVENT') return items.filter(i => ['EVENT'].includes(i.badge?.toUpperCase()));
     if (filter === 'BEST') return items.filter(i => ['BEST', 'HOT'].includes(i.badge?.toUpperCase()));
     if (filter === 'NEW') return items.filter(i => ['NEW'].includes(i.badge?.toUpperCase()));
-    if (filter === 'SALE') return items.filter(i => ['SALE', 'EVENT'].includes(i.badge?.toUpperCase()));
+    if (filter === 'SALE') return items.filter(i => ['SALE'].includes(i.badge?.toUpperCase()));
     
     return items;
   }, [serviceItems, filter]);
 
   const tabs = [
     { id: 'ALL', label: '전체보기' },
+    { id: 'EVENT', label: '🎉 이벤트', highlight: true },
     { id: 'BEST', label: '🔥 인기/추천' },
     { id: 'NEW', label: '✨ 신규' },
-    { id: 'SALE', label: '💰 할인/이벤트' },
+    { id: 'SALE', label: '💰 할인' },
   ];
 
   return (
@@ -99,7 +101,9 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
             className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
               filter === tab.id 
                 ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20 transform scale-105' 
-                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                : tab.highlight 
+                  ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
             }`}
           >
             {tab.label}
@@ -118,7 +122,7 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
       
       {filteredItems.length === 0 && (
          <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400">
-            해당하는 서비스가 없습니다.
+            {filter === 'EVENT' ? '현재 진행 중인 이벤트가 없습니다.' : '해당하는 서비스가 없습니다.'}
          </div>
       )}
 
@@ -167,6 +171,19 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
   };
   const style = getBadgeStyle(item.badge);
 
+  const renderTitle = (title: string) => {
+    const match = title.match(/^(.*?)\s*\((.*?)\)$/);
+    if (match) {
+        return (
+            <div className="flex flex-col items-center leading-tight mb-2">
+                <span className="text-xl font-black text-slate-900">{match[1]}</span>
+                <span className="text-sm font-medium text-slate-400">{match[2]}</span>
+            </div>
+        );
+    }
+    return <h4 className="text-xl font-black text-slate-900 mb-2">{title}</h4>;
+  };
+
   return (
     <div 
       className={`group relative bg-white rounded-[2rem] border transition-all duration-300 hover:shadow-2xl flex flex-col overflow-hidden w-full ${style.border}`}
@@ -181,7 +198,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
              </span>
            )}
          </div>
-         <h4 className="text-xl font-black text-slate-900 mb-2">{item.title}</h4>
+         {renderTitle(item.title)}
          <p className="text-sm text-slate-500 h-10 line-clamp-2 leading-relaxed">{item.desc}</p>
       </div>
 
@@ -209,8 +226,6 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
                <Play className="w-5 h-5 fill-slate-900" />제작하기
              </button>
          </div>
-         
-         {/* Mobile Touch Hint (Always visible on mobile if needed, but keeping clean for now) */}
       </div>
     </div>
   );
