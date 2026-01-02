@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { usePortfolio, ServiceItem } from '../contexts/PortfolioContext';
 import { 
-  Play, Sparkles, Zap, Flame, Gift, Tag, CheckCircle2, AlertCircle
+  Play, Sparkles, Zap, Flame, Gift, Tag, AlertCircle
 } from 'lucide-react';
 
 interface ServiceMenuProps {
@@ -91,74 +91,71 @@ export const ServiceMenu: React.FC<ServiceMenuProps> = ({ onOrder }) => {
   );
 };
 
-// --- Mobile Optimized Video Player Component ---
-const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActive }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // [Crucial Fix for Mobile]
-    // iOS Safari requires 'defaultMuted' to be true property, not just attribute.
-    video.defaultMuted = true;
-    video.muted = true;
-    video.playsInline = true;
-
-    // Force Play logic
-    const playVideo = async () => {
-      try {
-        if (isActive) {
-           // Promise based play handling to avoid "The play() request was interrupted" error
-           const playPromise = video.play();
-           if (playPromise !== undefined) {
-             await playPromise;
-           }
-        } else {
-           video.pause();
-           video.currentTime = 0; // Reset to start when hidden
-        }
-      } catch (err) {
-        console.warn("Autoplay blocked or interrupted:", err);
-      }
-    };
-
-    playVideo();
-
-  }, [src, isActive]);
-
-  return (
-    <video
-      ref={videoRef}
-      src={src}
-      className="object-cover w-full h-full"
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
-    />
-  );
-};
-
-
-// Card Component
+// --- Mobile Optimized Service Card ---
 const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void }> = ({ item, onOrder }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  // Refs
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // Use real data from context
   const videoSources = item.results || [];
 
-  // Slideshow Logic (3 seconds)
+  // 1. Intersection Observer: 화면에 보일 때만 작동 (성능 최적화)
   useEffect(() => {
-    if (videoSources.length <= 1) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 } // 10%만 보여도 활성화
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // 2. Slide Interval Logic
+  useEffect(() => {
+    if (!isVisible || videoSources.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentVideoIndex((prev) => (prev + 1) % videoSources.length);
-    }, 3000); // 3초마다 전환
+    }, 3000); // 3초 전환
 
     return () => clearInterval(interval);
-  }, [videoSources.length]);
+  }, [isVisible, videoSources.length]);
+
+  // 3. Manual Play Trigger & Attribute Enforcement (Mobile Core Fix)
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+
+      // [중요] 모바일 브라우저 정책 준수 강제 적용
+      video.muted = true;
+      video.defaultMuted = true; // iOS Safari 필수
+      video.playsInline = true;  // 전체화면 방지
+
+      if (idx === currentVideoIndex) {
+        // 활성 비디오: 화면에 보이면 재생
+        if (isVisible) {
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.debug("Autoplay prevented:", error);
+                });
+            }
+        }
+      } else {
+        // 비활성 비디오: 정지 및 초기화 (메모리 절약)
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
+  }, [currentVideoIndex, isVisible, videoSources]);
 
   // Badge Styling Helper
   const getBadgeStyle = (badge: string) => {
@@ -188,6 +185,7 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
 
   return (
     <div 
+      ref={containerRef}
       className={`group relative bg-white rounded-[2rem] border transition-all duration-300 hover:shadow-2xl flex flex-col overflow-hidden w-full ${style.border}`}
     >
       {/* Header Section */}
@@ -217,14 +215,23 @@ const ServiceCard: React.FC<{ item: ServiceItem; onOrder: (name: string) => void
               return (
                 <div 
                   key={idx}
-                  className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out ${
                     isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
                   }`}
                 >
-                    {/* Separate Component for ref management */}
-                    <VideoPlayer src={src} isActive={isActive} />
+                    <video
+                      ref={(el) => { videoRefs.current[idx] = el; }}
+                      src={src}
+                      className="object-cover w-full h-full"
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                      preload="metadata"
+                      poster="https://via.placeholder.com/400x700/000000/333333?text=Loading..." 
+                    />
                     
-                    {/* Gradient Overlay for better text visibility if needed */}
+                    {/* Gradient Overlay for better text visibility */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
                 </div>
               );
