@@ -36,7 +36,7 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 
 // LocalStorage Keys
 // Updated key to force refresh data with new menu items
-const STORAGE_KEY_SERVICES = 'service_data_v12_items'; 
+const STORAGE_KEY_SERVICES = 'service_data_v13_items'; 
 const STORAGE_KEY_PW = 'admin_password_v1';
 const DEFAULT_PASSWORD = 'MRwol093462!';
 

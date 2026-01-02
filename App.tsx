@@ -20,7 +20,8 @@ import {
   ChevronDown,
   ExternalLink,
   CheckCircle2,
-  Megaphone
+  Megaphone,
+  Lock
 } from 'lucide-react';
 
 // Firebase import 절대 금지
@@ -391,9 +392,16 @@ const App: React.FC = () => {
               <p>사업자등록번호: 109-02-01988 | 대표: 이성열</p>
               <p>{t('footer.address')}</p>
             </div>
-            <div className="flex gap-6">
+            <div className="flex flex-col md:flex-row gap-6 items-center">
               <button onClick={() => { setView('terms'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.terms')}</button>
               <button onClick={() => { setView('privacy'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t('footer.privacy')}</button>
+              {/* Temporary Admin Access Button */}
+              <button 
+                onClick={() => setView('admin')} 
+                className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white px-3 py-1.5 rounded-full text-xs transition-colors"
+              >
+                <Lock className="w-3 h-3" /> Admin (Temp)
+              </button>
             </div>
           </div>
           <p className="mt-8 text-center text-slate-600 text-xs">{t('footer.copyright')}</p>

@@ -44,9 +44,6 @@ const ServiceCard: React.FC<{ service: any, onOrder: (name: string) => void }> =
     if (videoRef.current) {
         videoRef.current.defaultMuted = true;
         videoRef.current.muted = true;
-        // Always play to show content, or play on hover? 
-        // For "Shorts" style, continuous play or play-on-hover is common.
-        // Let's autoplay silently.
         videoRef.current.play().catch(() => {});
     }
   }, [currentIndex]);
